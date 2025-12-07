@@ -1,8 +1,14 @@
 import { icons } from 'lucide-react-native';
 
-const Icon = ({ name, color, size }: { name: string; color: string; size: number }) => {
+import { LucideProps } from 'lucide-react-native';
+
+interface IconProps extends LucideProps {
+    name: string;
+}
+
+const Icon = ({ name, ...props }: IconProps) => {
     const LucideIcon = icons[name as keyof typeof icons] || icons.Info; // Fallback
-    return <LucideIcon color={color} size={size} />;
+    return <LucideIcon {...props} />;
 };
 
 export default Icon;
