@@ -1,17 +1,14 @@
-
 import { BlurView } from "expo-blur";
 import React, { useState, useEffect } from "react";
-import { Platform, StyleSheet, TouchableOpacity, View, Dimensions } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View, Dimensions, Text } from "react-native";
 import Animated, {
     FadeInRight,
     FadeOutLeft,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
-    withTiming,
 } from "react-native-reanimated";
-import Icon from "./LucideIcons";
-import { ThemedText } from "./themed-text";
+import { Home, Compass, Heart, User } from 'lucide-react-native';
 
 // Imported newly created screens
 import ExplorePage from '@/app/explore/index';
@@ -20,21 +17,28 @@ import HomePage from '@/app/home/index';
 import ProfilePage from '@/app/profile/index';
 
 interface NavItem {
-    icon: string;
     label: string;
     screen: React.ComponentType<any>;
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { icon: "House", label: "Home", screen: HomePage },
-    { icon: "Compass", label: "Explore", screen: ExplorePage },
-    { icon: "Heart", label: "Favorite", screen: FavoritePage },
-    { icon: "User", label: "Profile", screen: ProfilePage },
+    { label: "Home", screen: HomePage },
+    { label: "Explore", screen: ExplorePage },
+    { label: "Favorite", screen: FavoritePage },
+    { label: "Profile", screen: ProfilePage },
 ];
+
+const ICON_MAPPING: Record<string, React.ElementType> = {
+    Home: Home,
+    Explore: Compass,
+    Favorite: Heart,
+    Profile: User,
+};
 
 const { width } = Dimensions.get('window');
 const TAB_BAR_WIDTH = width * 0.9;
 const TAB_WIDTH = (TAB_BAR_WIDTH - 20) / NAV_ITEMS.length; // Adjusted for padding
+const INDICATOR_SIZE = 60; // Size of the circular spotlight
 
 export default function GlassNavBar(): React.JSX.Element {
     const [activeTab, setActiveTab] = useState(0);
@@ -82,6 +86,8 @@ export default function GlassNavBar(): React.JSX.Element {
 
                             {NAV_ITEMS.map((item, index) => {
                                 const isActive = activeTab === index;
+                                const IconComponent = ICON_MAPPING[item.label];
+
                                 return (
                                     <TouchableOpacity
                                         key={item.label}
@@ -90,16 +96,14 @@ export default function GlassNavBar(): React.JSX.Element {
                                         activeOpacity={0.8}
                                     >
                                         <View style={[styles.itemContent, isActive && styles.activeItemContent]}>
-                                            <Icon
-                                                name={item.icon}
+                                            <IconComponent
                                                 size={24}
-                                                color={isActive ? "#FF3B30" : "#000000ff"} // Apple Red active, Gray inactive
-                                                strokeWidth={isActive ? 0 : 2}
-                                                fill={isActive ? "#FF3B30" : "transparent"} // Solid fill when active
+                                                color={isActive ? "#FF3B30" : "#000000"}
+                                                strokeWidth={isActive ? 2.8 : 2}
                                             />
-                                            <ThemedText style={[styles.navText, isActive && styles.activeNavText]}>
+                                            <Text style={[styles.navText, isActive && styles.activeNavText]}>
                                                 {item.label}
-                                            </ThemedText>
+                                            </Text>
                                         </View>
                                     </TouchableOpacity>
                                 );
@@ -134,8 +138,7 @@ const styles = StyleSheet.create({
         borderRadius: 120, // Matched to glass pill
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.15)',
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        borderColor: 'rgba(255, 255, 255, 0.3)', // Increased opacity to look white instead of gray
     },
     glassPill: {
         borderRadius: 120,
@@ -149,12 +152,12 @@ const styles = StyleSheet.create({
     },
     activeIndicator: {
         position: 'absolute',
-        top: 4, // (70 - 50) / 2 = 10 for perfect centering\
-        left: 10,
+        top: 5, // (70 - 50) / 2
+        left: 10, // Initial offset due to padding
         width: TAB_WIDTH,
-        height: 60, // Reduced height to fit nicely inside 70px
-        borderRadius: 30,
-        backgroundColor: 'rgba(255, 255, 255, 0.25)', // Increased visibility
+        height: 60,
+        borderRadius: 75,
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
         zIndex: 0,
     },
     navItem: {
@@ -166,19 +169,20 @@ const styles = StyleSheet.create({
     },
     itemContent: {
         alignItems: 'center',
-        gap: 4, // Reduced gap slightly for tighter layout
+        gap: 4,
     },
     activeItemContent: {
         transform: [{ scale: 1.05 }],
     },
     navText: {
-        fontSize: 10, // Slight adjustment for compactness
+        fontSize: 10,
         fontWeight: '500',
-        color: '#000000ff',
+        color: '#000000',
+        // System font is default in RN Text
     },
     activeNavText: {
         color: '#FF3B30',
-        fontWeight: '700',
+        fontWeight: '600', // Semi-bold for active
     },
 });
 

@@ -181,62 +181,6 @@ export default function HomePage() {
                         keyExtractor={item => item.id}
                     />
                 </View>
-                <View style={styles.cardsContainer}>
-                    <FlatList
-                        data={DESTINATIONS}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        pagingEnabled
-                        snapToInterval={width * 0.75 + 20}
-                        decelerationRate="fast"
-                        contentContainerStyle={{ paddingHorizontal: 25, gap: 20, paddingBottom: 100 }}
-                        renderItem={({ item, index }) => (
-                            <MotiView
-                                style={styles.card}
-                                from={{ opacity: 0, translateY: 50 }}
-                                animate={{ opacity: 1, translateY: 0 }}
-                                transition={{ type: 'spring', delay: 600 + (index * 200) }}
-                            >
-                                <Image source={{ uri: item.image }} style={styles.cardImage} />
-
-                                {/* Overlay Gradient */}
-                                <LinearGradient
-                                    colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
-                                    style={styles.cardGradient}
-                                />
-
-                                {/* Top Right Heart */}
-                                <View style={styles.favoriteButton}>
-                                    <Icon name="Heart" size={20} color="white" />
-                                </View>
-
-                                {/* Bottom Content */}
-                                <View style={styles.cardContent}>
-                                    <MotiText style={styles.cardCountry}>{item.country}</MotiText>
-                                    <MotiText style={styles.cardCity}>{item.name}</MotiText>
-
-                                    <View style={styles.reviewContainer}>
-                                        <View style={styles.ratingBadge}>
-                                            <Icon name="Star" size={12} color="#FFD700" fill="#FFD700" />
-                                            <MotiText style={styles.ratingText}>{item.rating}</MotiText>
-                                        </View>
-                                        <MotiText style={styles.reviewCount}>{item.reviews} reviews</MotiText>
-                                    </View>
-
-                                    <TouchableOpacity style={styles.seeMoreButton}>
-                                        <BlurView intensity={30} tint="dark" style={styles.seeMoreBlur}>
-                                            <MotiText style={styles.seeMoreText}>See more</MotiText>
-                                            <View style={styles.arrowCircle}>
-                                                <Icon name="ChevronRight" size={16} color="#1A1A1A" />
-                                            </View>
-                                        </BlurView>
-                                    </TouchableOpacity>
-                                </View>
-                            </MotiView>
-                        )}
-                        keyExtractor={item => item.id}
-                    />
-                </View>
 
             </ScrollView>
         </SafeAreaView>
