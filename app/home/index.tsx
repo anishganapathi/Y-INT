@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
-const CATEGORIES = ['Asia', 'Europe', 'South America', 'North America', 'Africa'];
+const CATEGORIES = ['Restaurants', 'Repair', 'Movers', 'Plumbers', 'Cleaning'];
 
 const DESTINATIONS = [
     {
@@ -38,7 +38,7 @@ const DESTINATIONS = [
 ];
 
 export default function HomePage() {
-    const [activeCategory, setActiveCategory] = useState('South America');
+    const [activeCategory, setActiveCategory] = useState('Restaurants');
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
