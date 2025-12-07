@@ -1,12 +1,14 @@
+
 import { BlurView } from "expo-blur";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Platform, StyleSheet, TouchableOpacity, View, Dimensions } from "react-native";
 import Animated, {
     FadeInRight,
     FadeOutLeft,
-    withSpring,
     useAnimatedStyle,
     useSharedValue,
+    withSpring,
+    withTiming,
 } from "react-native-reanimated";
 import Icon from "./LucideIcons";
 import { ThemedText } from "./themed-text";
@@ -24,20 +26,33 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { icon: "House", label: "Home", screen: HomePage }, // Changed to House
+    { icon: "House", label: "Home", screen: HomePage },
     { icon: "Compass", label: "Explore", screen: ExplorePage },
     { icon: "Heart", label: "Favorite", screen: FavoritePage },
     { icon: "User", label: "Profile", screen: ProfilePage },
 ];
 
 const { width } = Dimensions.get('window');
+const TAB_BAR_WIDTH = width * 0.9;
+const TAB_WIDTH = (TAB_BAR_WIDTH - 20) / NAV_ITEMS.length; // Adjusted for padding
 
 export default function GlassNavBar(): React.JSX.Element {
     const [activeTab, setActiveTab] = useState(0);
+    const indicatorPosition = useSharedValue(0);
 
-    // Split items: First 3 in the pill, last one in the circle
-    const mainItems = NAV_ITEMS.slice(0, 3);
-    const actionItem = NAV_ITEMS[3];
+    useEffect(() => {
+        indicatorPosition.value = withSpring(activeTab * TAB_WIDTH, {
+            damping: 15,
+            stiffness: 150,
+            mass: 0.5,
+        });
+    }, [activeTab]);
+
+    const animatedIndicatorStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: indicatorPosition.value }],
+        };
+    });
 
     return (
         <View style={{ flex: 1, backgroundColor: '#000' }}>
@@ -58,33 +73,29 @@ export default function GlassNavBar(): React.JSX.Element {
 
             {/* Glass Navigation Bar */}
             <View style={styles.navContainer}>
-
-                {/* Main Pill */}
                 <View style={styles.pillWrapper}>
-                    <BlurView intensity={40} tint="light" style={styles.glassPill}>
+                    <BlurView intensity={80} tint="dark" style={styles.glassPill}>
                         <View style={styles.pillContent}>
-                            {mainItems.map((item, index) => {
+
+                            {/* Sliding Indicator */}
+                            <Animated.View style={[styles.activeIndicator, animatedIndicatorStyle]} />
+
+                            {NAV_ITEMS.map((item, index) => {
                                 const isActive = activeTab === index;
                                 return (
                                     <TouchableOpacity
                                         key={item.label}
                                         style={styles.navItem}
                                         onPress={() => setActiveTab(index)}
-                                        activeOpacity={0.7}
+                                        activeOpacity={0.8}
                                     >
-                                        {isActive && (
-                                            <Animated.View
-                                                entering={FadeInRight.springify().damping(15)}
-                                                style={styles.activeIndicator}
-                                            />
-                                        )}
                                         <View style={[styles.itemContent, isActive && styles.activeItemContent]}>
                                             <Icon
                                                 name={item.icon}
                                                 size={24}
-                                                color={isActive ? "#D32F2F" : "#555"}
-                                                strokeWidth={isActive ? 2.5 : 2}
-                                                fill={isActive ? "#D32F2F" : "transparent"} // Added fill for active state
+                                                color={isActive ? "#FF3B30" : "#8E8E93"} // Apple Red active, Gray inactive
+                                                strokeWidth={isActive ? 0 : 2}
+                                                fill={isActive ? "#FF3B30" : "transparent"} // Solid fill when active
                                             />
                                             <ThemedText style={[styles.navText, isActive && styles.activeNavText]}>
                                                 {item.label}
@@ -96,27 +107,6 @@ export default function GlassNavBar(): React.JSX.Element {
                         </View>
                     </BlurView>
                 </View>
-
-                {/* Right Circle (Profile/Action) */}
-                <TouchableOpacity
-                    style={styles.circleWrapper}
-                    activeOpacity={0.8}
-                    onPress={() => setActiveTab(3)}
-                >
-                    <BlurView intensity={40} tint="light" style={styles.glassCircle}>
-                        <View style={[styles.circleContent, activeTab === 3 && styles.activeCircleContent]}>
-                            {activeTab === 3 && <View style={styles.activeCircleIndicator} />}
-                            <Icon
-                                name={actionItem.icon}
-                                size={26}
-                                color={activeTab === 3 ? "#D32F2F" : "#555"}
-                                strokeWidth={activeTab === 3 ? 2.5 : 2}
-                                fill={activeTab === 3 ? "#D32F2F" : "transparent"}
-                            />
-                        </View>
-                    </BlurView>
-                </TouchableOpacity>
-
             </View>
         </View>
     );
@@ -129,106 +119,66 @@ const styles = StyleSheet.create({
     },
     navContainer: {
         position: "absolute",
-        bottom: Platform.OS === "ios" ? 40 : 25,
-        left: 0,
-        right: 0,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 15,
-        gap: 15, // Increased gap slightly for separation
-    },
-    // Main Pill Styles
-    pillWrapper: {
-        borderRadius: 35,
-        overflow: 'hidden',
+        bottom: Platform.OS === "ios" ? 35 : 25,
+        alignSelf: 'center',
+        width: TAB_BAR_WIDTH,
+        maxWidth: 400,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 15,
-        elevation: 10,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 15,
+        borderRadius: 40,
+    },
+    pillWrapper: {
+        borderRadius: 40,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(0,0,0,0.2)',
     },
     glassPill: {
-        borderRadius: 35,
-        backgroundColor: 'rgba(255, 240, 245, 0.45)', // Pinkish milky glass
-        borderWidth: 1.5,
-        borderColor: 'rgba(255, 255, 255, 0.5)',
+        borderRadius: 40,
+        height: 80,
     },
     pillContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 6, // Reduced vertically
-        paddingHorizontal: 6, // Reduced horizontally
-        height: 64, // Reduced height from 72
+        height: '100%',
+        paddingHorizontal: 10, // Slight padding for the track
+    },
+    activeIndicator: { // The sliding spotlight
+        position: 'absolute',
+        top: 10, // Center vertically (80 - 60)/2
+        left: 10, // Match paddingHorizontal
+        width: TAB_WIDTH,
+        height: 60,
+        borderRadius: 30, // Squircle shape
+        backgroundColor: 'rgba(255, 255, 255, 0.12)',
+        zIndex: 0,
     },
     navItem: {
+        width: TAB_WIDTH,
         height: '100%',
-        paddingHorizontal: 16, // Reduced from 20
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 25,
-        minWidth: 65, // Reduced from 80
+        zIndex: 1,
     },
     itemContent: {
         alignItems: 'center',
-        gap: 3,
-        zIndex: 2,
+        gap: 6,
     },
     activeItemContent: {
         transform: [{ scale: 1.05 }],
     },
-    activeIndicator: {
-        position: 'absolute',
-        width: '120%',
-        height: '100%',
-        borderRadius: 25,
-        backgroundColor: 'rgba(255, 80, 80, 0.15)', // Light red glow
-        zIndex: 1,
-    },
     navText: {
-        fontSize: 10,
-        fontWeight: '600',
-        color: '#666',
+        fontSize: 11,
+        fontWeight: '500',
+        color: '#8E8E93',
     },
     activeNavText: {
-        color: '#D32F2F',
+        color: '#FF3B30',
         fontWeight: '700',
     },
-
-    // Circle Styles
-    circleWrapper: {
-        borderRadius: 35, // Match pill slightly better
-        overflow: 'hidden',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 15,
-        elevation: 10,
-        height: 64, // Match pill height
-        width: 64, // Match pill height
-    },
-    glassCircle: {
-        flex: 1,
-        borderRadius: 35,
-        backgroundColor: 'rgba(255, 240, 245, 0.45)',
-        borderWidth: 1.5,
-        borderColor: 'rgba(255, 255, 255, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    circleContent: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: '100%',
-    },
-    activeCircleContent: {
-        // Active state for circle
-    },
-    activeCircleIndicator: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(255, 80, 80, 0.15)',
-    }
 });
+
