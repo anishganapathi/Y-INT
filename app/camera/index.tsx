@@ -10,9 +10,8 @@ import * as Location from 'expo-location';
 import { useRouter, Stack } from 'expo-router';
 import { X, Camera, RefreshCw } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import ARResultCard from '@/components/ARResultCard';
-import { CameraRecognitionEngine, RecognitionOutput } from '@/services/cameraRecognitionEngine';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { CameraRecognitionEngine } from '@/services/cameraRecognitionEngine';
 
 export default function ARCameraScreen(): React.JSX.Element {
   const router = useRouter();
@@ -22,7 +21,6 @@ export default function ARCameraScreen(): React.JSX.Element {
   const [locationPermission, setLocationPermission] = useState<Location.PermissionStatus | null>(null);
   const [facing, setFacing] = useState<CameraType>('back');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [recognitionResult, setRecognitionResult] = useState<RecognitionOutput | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const recognitionEngine = new CameraRecognitionEngine();
@@ -87,7 +85,19 @@ export default function ARCameraScreen(): React.JSX.Element {
         },
       });
 
-      setRecognitionResult(result);
+      // Redirect to restaurant detail page with smooth transition
+      if (result && result.google_match && result.google_match.name) {
+        const restaurantId = result.google_match.place_id || Date.now().toString();
+        router.push({
+          pathname: '/restaurant/[id]',
+          params: {
+            id: restaurantId,
+            data: JSON.stringify(result),
+          },
+        });
+      } else {
+        Alert.alert('No Results', 'Could not identify restaurant. Please try again.');
+      }
     } catch (error) {
       console.error('Recognition error:', error);
       Alert.alert('Error', 'Failed to recognize restaurant. Please try again.');
@@ -96,9 +106,6 @@ export default function ARCameraScreen(): React.JSX.Element {
     }
   };
 
-  const resetRecognition = () => {
-    setRecognitionResult(null);
-  };
 
   const toggleCameraFacing = () => {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
@@ -155,16 +162,6 @@ export default function ARCameraScreen(): React.JSX.Element {
           <View style={styles.cornerBottomRight} />
         </View>
 
-        {/* Recognition Result Card */}
-        {recognitionResult && (
-          <Animated.View 
-            entering={SlideInDown.duration(400).springify()}
-            exiting={SlideOutDown.duration(300)}
-            style={styles.resultCardContainer}
-          >
-            <ARResultCard result={recognitionResult} />
-          </Animated.View>
-        )}
 
         {/* Bottom Controls */}
         <View style={styles.bottomControls}>
@@ -174,7 +171,7 @@ export default function ARCameraScreen(): React.JSX.Element {
             ) : (
               <TouchableOpacity 
                 style={styles.captureButton}
-                onPress={recognitionResult ? resetRecognition : captureAndRecognize}
+                onPress={captureAndRecognize}
                 activeOpacity={0.8}
               >
                 <View style={styles.captureButtonInner}>
@@ -183,14 +180,10 @@ export default function ARCameraScreen(): React.JSX.Element {
               </TouchableOpacity>
             )}
           </BlurView>
-          
-          {recognitionResult && (
-            <Text style={styles.tapToResetText}>Tap to scan again</Text>
-          )}
         </View>
 
         {/* Instructions */}
-        {!recognitionResult && !isProcessing && (
+        {!isProcessing && (
           <Animated.View 
             entering={FadeIn.delay(500).duration(400)}
             exiting={FadeOut.duration(200)}
@@ -198,7 +191,7 @@ export default function ARCameraScreen(): React.JSX.Element {
           >
             <BlurView intensity={80} tint="light" style={styles.instructionsBlur}>
               <Text style={styles.instructionsText}>
-                👆 Point camera at restaurant sign and tap to recognize
+                👆 Point camera at restaurant sign and tap to scan
               </Text>
             </BlurView>
           </Animated.View>
@@ -216,12 +209,6 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
-  },
-  resultCardContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   permissionContainer: {
     flex: 1,
@@ -341,12 +328,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  tapToResetText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-    marginTop: 12,
   },
   instructionsContainer: {
     position: 'absolute',
