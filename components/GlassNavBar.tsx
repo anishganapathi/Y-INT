@@ -75,6 +75,18 @@ export default function GlassNavBar(): React.JSX.Element {
                 </Animated.View>
             </View>
 
+            {/* Floating Action Button - Bottom Right */}
+            <View style={styles.fabWrapper}>
+                <BlurView intensity={50} tint="light" style={styles.fabGlass}>
+                    <TouchableOpacity
+                        style={styles.fabButton}
+                        activeOpacity={0.9}
+                    >
+                        <Camera size={22} color="#FF3B30" strokeWidth={2} />
+                    </TouchableOpacity>
+                </BlurView>
+            </View>
+
             {/* Glass Navigation Bar */}
             <View style={styles.navContainer}>
                 <View style={styles.pillWrapper}>
@@ -183,6 +195,30 @@ const styles = StyleSheet.create({
     activeNavText: {
         color: '#FF3B30',
         fontWeight: '600', // Semi-bold for active
+    },
+    fabWrapper: {
+        position: 'absolute',
+        right: 28,
+        bottom: Platform.OS === 'ios' ? 110 : 95,
+    },
+    fabGlass: {
+        borderRadius: 28,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(255, 255, 255, 0.51)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        shadowColor: "#ffffffff",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    fabButton: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 
