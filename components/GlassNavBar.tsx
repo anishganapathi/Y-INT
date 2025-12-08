@@ -9,6 +9,7 @@ import Animated, {
     withSpring,
 } from "react-native-reanimated";
 import { Home, Compass, Heart, User, Camera } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 // Imported newly created screens
 import ExplorePage from '@/app/explore/index';
@@ -43,6 +44,7 @@ const INDICATOR_SIZE = 60; // Size of the circular spotlight
 export default function GlassNavBar(): React.JSX.Element {
     const [activeTab, setActiveTab] = useState(0);
     const indicatorPosition = useSharedValue(0);
+    const router = useRouter();
 
     useEffect(() => {
         indicatorPosition.value = withSpring(activeTab * TAB_WIDTH, {
@@ -51,6 +53,10 @@ export default function GlassNavBar(): React.JSX.Element {
             mass: 0.5,
         });
     }, [activeTab]);
+
+    const handleCameraPress = () => {
+        router.push('/camera');
+    };
 
     const animatedIndicatorStyle = useAnimatedStyle(() => {
         return {
@@ -81,6 +87,7 @@ export default function GlassNavBar(): React.JSX.Element {
                     <TouchableOpacity
                         style={styles.fabButton}
                         activeOpacity={0.9}
+                        onPress={handleCameraPress}
                     >
                         <Camera size={22} color="#FF3B30" strokeWidth={2} />
                     </TouchableOpacity>
@@ -204,9 +211,9 @@ const styles = StyleSheet.create({
     fabGlass: {
         borderRadius: 28,
         overflow: 'hidden',
-        backgroundColor: 'rgba(255, 255, 255, 0.51)',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderColor: 'rgba(155, 155, 155, 0.28)',
         shadowColor: "#ffffffff",
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.3,
