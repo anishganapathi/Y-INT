@@ -8,7 +8,7 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from "react-native-reanimated";
-import { Home, Compass, Heart, User } from 'lucide-react-native';
+import { Home, Compass, Heart, User, Camera } from 'lucide-react-native';
 
 // Imported newly created screens
 import ExplorePage from '@/app/explore/index';
@@ -78,7 +78,7 @@ export default function GlassNavBar(): React.JSX.Element {
             {/* Glass Navigation Bar */}
             <View style={styles.navContainer}>
                 <View style={styles.pillWrapper}>
-                    <BlurView intensity={80} tint="extraLight" style={styles.glassPill}>
+                    <BlurView intensity={80} tint="light" style={styles.glassPill}>
                         <View style={styles.pillContent}>
 
                             {/* Sliding Indicator */}
