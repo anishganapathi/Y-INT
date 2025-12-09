@@ -127,27 +127,29 @@ export default function ItineraryScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Icon name="ArrowLeft" size={24} color="#1A1A1A" />
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Icon name="ArrowLeft" size={24} color="#1A1A1A" />
+          </TouchableOpacity>
 
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>{itinerary.destination}</Text>
-          <Text style={styles.headerSubtitle}>
-            {itinerary.totalDays} days • {totalMeals} meals
-          </Text>
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerTitle}>{itinerary.destination}</Text>
+            <Text style={styles.headerSubtitle}>
+              {itinerary.totalDays} days • {totalMeals} meals
+            </Text>
+          </View>
+
+          <TouchableOpacity style={styles.shareButton}>
+            <Icon name="Share2" size={24} color="#1A1A1A" />
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.shareButton}>
-          <Icon name="Share2" size={24} color="#1A1A1A" />
-        </TouchableOpacity>
-      </View>
+      </SafeAreaView>
 
       {/* Budget Overview Card */}
       <MotiView
@@ -522,7 +524,7 @@ export default function ItineraryScreen() {
           <Text style={styles.savedBadgeText}>Saved</Text>
         </MotiView>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -530,6 +532,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FB',
+  },
+  safeArea: {
+    backgroundColor: '#FFF',
   },
   loadingContainer: {
     flex: 1,
@@ -614,14 +619,14 @@ const styles = StyleSheet.create({
   budgetCard: {
     backgroundColor: '#FFF',
     marginHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 16,
+    marginTop: 12,
+    marginBottom: 12,
     borderRadius: 20,
-    padding: 20,
+    padding: 18,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 4,
   },
   budgetHeader: {
@@ -682,7 +687,8 @@ const styles = StyleSheet.create({
   dayTabs: {
     paddingHorizontal: 20,
     gap: 10,
-    marginBottom: 20,
+    marginBottom: 4,
+    paddingVertical: 8,
   },
   dayTab: {
     backgroundColor: '#FFF',
@@ -745,20 +751,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingTop: 4,
+    paddingBottom: 120,
+    flexGrow: 1,
   },
   themeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 59, 48, 0.05)',
     borderRadius: 16,
-    padding: 16,
-    gap: 12,
-    marginBottom: 20,
+    padding: 12,
+    gap: 10,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: 'rgba(255, 59, 48, 0.1)',
   },
@@ -769,14 +777,14 @@ const styles = StyleSheet.create({
   },
   mealCard: {
     backgroundColor: '#FFF',
-    borderRadius: 24,
-    marginBottom: 20,
+    borderRadius: 20,
+    marginBottom: 12,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowRadius: 10,
+    elevation: 4,
   },
   mealHeader: {
     flexDirection: 'row',
