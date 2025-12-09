@@ -60,22 +60,23 @@ export default function HomePage() {
                         <MotiText style={styles.greetingSubtitle}>Welcome to YelpINT</MotiText>
                     </View>
                     <TouchableOpacity
-                        onPress={() => router.push('/chat')}
+                        onPress={() => router.push('/camera')}
                         activeOpacity={0.7}
                     >
                         <MotiView
                             from={{ scale: 0, rotate: '-90deg' }}
                             animate={{ scale: 1, rotate: '0deg' }}
                             transition={{ type: 'spring', delay: 300 }}
-                            style={styles.chatButton}
+                            style={styles.cameraButton}
                         >
-                            <View style={styles.chatButtonInner}>
-                                <Image
-                                    source={require('@/assets/images/chat.png')}
-                                    style={styles.chatLogo}
-                                    resizeMode="contain"
-                                />
-                            </View>
+                            <LinearGradient
+                                colors={['#FF3B30', '#FF6B6B']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.cameraButtonInner}
+                            >
+                                <Icon name="Camera" size={24} color="#FFF" />
+                            </LinearGradient>
                         </MotiView>
                     </TouchableOpacity>
                 </MotiView>
@@ -228,29 +229,22 @@ const styles = StyleSheet.create({
         color: '#8E8E93',
         fontWeight: '500',
     },
-    chatButton: {
+    cameraButton: {
         width: 52,
         height: 52,
         borderRadius: 26,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        elevation: 4,
+        shadowColor: '#FF3B30',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
     },
-    chatButtonInner: {
+    cameraButtonInner: {
         width: '100%',
         height: '100%',
         borderRadius: 26,
-        backgroundColor: '#FFF',
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 1.5,
-        borderColor: '#E5E5EA',
-    },
-    chatLogo: {
-        width: 32,
-        height: 32,
     },
     searchContainer: {
         flexDirection: 'row',

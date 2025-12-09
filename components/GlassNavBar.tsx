@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import React, { useState, useEffect } from "react";
-import { Platform, StyleSheet, TouchableOpacity, View, Dimensions, Text } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View, Dimensions, Text, Image } from "react-native";
 import Animated, {
     FadeInRight,
     FadeOutLeft,
@@ -8,8 +8,9 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from "react-native-reanimated";
-import { Home, Compass, Heart, User, Camera } from 'lucide-react-native';
+import { Home, Compass, Heart, User } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Imported newly created screens
 import ExplorePage from '@/app/explore/index';
@@ -54,8 +55,8 @@ export default function GlassNavBar(): React.JSX.Element {
         });
     }, [activeTab]);
 
-    const handleCameraPress = () => {
-        router.push('/camera');
+    const handleChatPress = () => {
+        router.push('/chat');
     };
 
     const animatedIndicatorStyle = useAnimatedStyle(() => {
@@ -83,15 +84,30 @@ export default function GlassNavBar(): React.JSX.Element {
 
             {/* Floating Action Button - Bottom Right */}
             <View style={styles.fabWrapper}>
-                <BlurView intensity={50} tint="light" style={styles.fabGlass}>
-                    <TouchableOpacity
-                        style={styles.fabButton}
-                        activeOpacity={0.9}
-                        onPress={handleCameraPress}
-                    >
-                        <Camera size={22} color="#FF3B30" strokeWidth={2} />
-                    </TouchableOpacity>
-                </BlurView>
+                <TouchableOpacity
+                    activeOpacity={0.9}
+                    onPress={handleChatPress}
+                >
+                    <View style={styles.fabContainer}>
+                        {/* Multi-color gradient ring */}
+                        <View style={styles.fabRing}>
+                            <LinearGradient
+                                colors={['#FF6B35', '#F7931E', '#FDC830', '#4ECDC4', '#556FB5', '#8B5FBF', '#E84393']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.fabGradientRing}
+                            />
+                        </View>
+                        {/* White inner circle */}
+                        <View style={styles.fabInner}>
+                            <Image
+                                source={require('@/assets/images/chat.png')}
+                                style={styles.fabChatIcon}
+                                resizeMode="contain"
+                            />
+                        </View>
+                    </View>
+                </TouchableOpacity>
             </View>
 
             {/* Glass Navigation Bar */}
@@ -208,24 +224,45 @@ const styles = StyleSheet.create({
         right: 28,
         bottom: Platform.OS === 'ios' ? 110 : 95,
     },
-    fabGlass: {
-        borderRadius: 28,
-        overflow: 'hidden',
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        borderWidth: 1,
-        borderColor: 'rgba(155, 155, 155, 0.28)',
-        shadowColor: "#ffffffff",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 16,
-        elevation: 8,
-    },
-    fabButton: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+    fabContainer: {
+        width: 70,
+        height: 70,
         justifyContent: 'center',
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+        elevation: 12,
+    },
+    fabRing: {
+        position: 'absolute',
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        padding: 4,
+    },
+    fabGradientRing: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 35,
+    },
+    fabInner: {
+        width: 62,
+        height: 62,
+        borderRadius: 31,
+        backgroundColor: '#FFFFFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    fabChatIcon: {
+        width: 30,
+        height: 30,
     },
 });
 
