@@ -228,6 +228,29 @@ export class SupabaseItineraryService {
   }
 
   /**
+   * Update trip status
+   */
+  async updateTripStatus(tripId: string, status: 'draft' | 'confirmed' | 'active' | 'completed'): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('trip_itineraries')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', tripId);
+
+      if (error) {
+        console.error('❌ Error updating trip status:', error);
+        return false;
+      }
+
+      console.log('✅ Trip status updated to:', status);
+      return true;
+    } catch (error) {
+      console.error('❌ Error in updateTripStatus:', error);
+      return false;
+    }
+  }
+
+  /**
    * Delete itinerary
    */
   async deleteItinerary(tripId: string): Promise<boolean> {

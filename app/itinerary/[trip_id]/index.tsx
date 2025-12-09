@@ -29,6 +29,8 @@ export default function ItineraryScreen() {
   const [itinerary, setItinerary] = useState<TripItinerary | null>(null);
   const [selectedDay, setSelectedDay] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   useEffect(() => {
     loadItinerary();
@@ -86,6 +88,35 @@ export default function ItineraryScreen() {
   const spentBudget = itinerary.days
     .slice(0, selectedDay)
     .reduce((sum, day) => sum + day.meals.reduce((mealSum, meal) => mealSum + meal.estimatedCost, 0), 0);
+
+  const handleSaveItinerary = async () => {
+    if (!itinerary) return;
+    
+    setIsSaving(true);
+    try {
+      console.log('💾 Finalizing itinerary...');
+      
+      // Update status to confirmed
+      const success = await supabaseItineraryService.updateTripStatus(itinerary.id, 'confirmed');
+      
+      if (success) {
+        const updatedItinerary = { ...itinerary, status: 'confirmed' as const };
+        setItinerary(updatedItinerary);
+        setShowSaveSuccess(true);
+        
+        console.log('✅ Itinerary saved & confirmed!');
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setShowSaveSuccess(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('❌ Error saving itinerary:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -335,7 +366,81 @@ export default function ItineraryScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Save Button Spacer */}
+        <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Floating Save Button */}
+      {itinerary.status === 'draft' && !showSaveSuccess && (
+        <MotiView
+          from={{ opacity: 0, translateY: 100 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 800 }}
+          style={styles.saveButtonContainer}
+        >
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleSaveItinerary}
+            disabled={isSaving}
+            activeOpacity={0.9}
+          >
+            <LinearGradient
+              colors={['#34C759', '#30D158']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.saveButtonGradient}
+            >
+              {isSaving ? (
+                <>
+                  <MotiView
+                    from={{ rotate: '0deg' }}
+                    animate={{ rotate: '360deg' }}
+                    transition={{ type: 'timing', duration: 1000, loop: true }}
+                  >
+                    <Icon name="Loader" size={24} color="#FFF" />
+                  </MotiView>
+                  <Text style={styles.saveButtonText}>Saving...</Text>
+                </>
+              ) : (
+                <>
+                  <Icon name="Check" size={24} color="#FFF" />
+                  <Text style={styles.saveButtonText}>Save Itinerary</Text>
+                </>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+        </MotiView>
+      )}
+
+      {/* Success Toast */}
+      {showSaveSuccess && (
+        <MotiView
+          from={{ opacity: 0, translateY: -20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          exit={{ opacity: 0, translateY: -20 }}
+          transition={{ type: 'spring' }}
+          style={styles.successToast}
+        >
+          <View style={styles.successToastContent}>
+            <Icon name="CheckCircle" size={24} color="#34C759" />
+            <Text style={styles.successToastText}>Itinerary Saved! ✨</Text>
+          </View>
+        </MotiView>
+      )}
+
+      {/* Saved Badge */}
+      {itinerary.status === 'confirmed' && (
+        <MotiView
+          from={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring' }}
+          style={styles.savedBadge}
+        >
+          <Icon name="CheckCircle" size={16} color="#34C759" />
+          <Text style={styles.savedBadgeText}>Saved</Text>
+        </MotiView>
+      )}
     </SafeAreaView>
   );
 }
@@ -777,6 +882,81 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '800',
     color: '#1A1A1A',
+  },
+  saveButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    paddingBottom: 20,
+  },
+  saveButton: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#34C759',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  saveButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 12,
+  },
+  saveButtonText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFF',
+    letterSpacing: 0.5,
+  },
+  successToast: {
+    position: 'absolute',
+    top: 100,
+    left: 20,
+    right: 20,
+    zIndex: 1000,
+  },
+  successToastContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    gap: 12,
+    shadowColor: '#34C759',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: '#34C759',
+  },
+  successToastText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  savedBadge: {
+    position: 'absolute',
+    top: 20,
+    right: 70,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    gap: 6,
+    borderWidth: 1.5,
+    borderColor: '#34C759',
+  },
+  savedBadgeText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#34C759',
   },
 });
 
