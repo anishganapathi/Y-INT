@@ -1,51 +1,115 @@
 /**
- * Favorite Page
- * Displays user's saved favorite restaurants
+ * Trip Planner Page
+ * Plan your food trip with AI-powered itinerary
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
+  TextInput,
   Dimensions,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Heart, Star, MapPin } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useFavorites } from '@/context/FavoritesContext';
+import Icon from '@/components/LucideIcons';
+import { MotiView } from 'moti';
+import { LinearGradient } from 'expo-linear-gradient';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - 48;
 
-export default function FavoritePage() {
+const DIETARY_OPTIONS = [
+  { id: 'vegan', label: 'Vegan', emoji: '🌱' },
+  { id: 'vegetarian', label: 'Vegetarian', emoji: '🥗' },
+  { id: 'gluten_free', label: 'Gluten-Free', emoji: '🌾' },
+  { id: 'dairy_free', label: 'Dairy-Free', emoji: '🥛' },
+  { id: 'halal', label: 'Halal', emoji: '🕌' },
+  { id: 'kosher', label: 'Kosher', emoji: '✡️' },
+];
+
+const CUISINE_OPTIONS = [
+  { id: 'italian', label: 'Italian', emoji: '🍝' },
+  { id: 'japanese', label: 'Japanese', emoji: '🍣' },
+  { id: 'mexican', label: 'Mexican', emoji: '🌮' },
+  { id: 'indian', label: 'Indian', emoji: '🍛' },
+  { id: 'chinese', label: 'Chinese', emoji: '🥡' },
+  { id: 'american', label: 'American', emoji: '🍔' },
+  { id: 'thai', label: 'Thai', emoji: '🍜' },
+  { id: 'mediterranean', label: 'Mediterranean', emoji: '🥙' },
+];
+
+const MEAL_TYPES = [
+  { id: 'breakfast', label: 'Breakfast', emoji: '🍳' },
+  { id: 'lunch', label: 'Lunch', emoji: '🍱' },
+  { id: 'dinner', label: 'Dinner', emoji: '🍽️' },
+  { id: 'snacks', label: 'Snacks', emoji: '🍿' },
+];
+
+export default function TripPlannerPage() {
   const router = useRouter();
-  const { favorites, removeFavorite } = useFavorites();
+  
+  // Form State
+  const [destination, setDestination] = useState('');
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date(Date.now() + 5 * 24 * 60 * 60 * 1000));
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [budget, setBudget] = useState(500);
+  const [partySize, setPartySize] = useState(2);
+  const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
+  const [selectedMeals, setSelectedMeals] = useState<string[]>(['breakfast', 'lunch', 'dinner']);
 
-  const handleCardPress = (favorite: any) => {
+  const toggleSelection = (id: string, currentList: string[], setter: (list: string[]) => void) => {
+    if (currentList.includes(id)) {
+      setter(currentList.filter(item => item !== id));
+    } else {
+      setter([...currentList, id]);
+    }
+  };
+
+  const calculateDays = () => {
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays || 1;
+  };
+
+  const handleGenerate = () => {
+    // Navigate to generating screen
     router.push({
-      pathname: '/restaurant/[id]',
+      pathname: '/itinerary/generating',
       params: {
-        id: favorite.restaurantId,
-        data: JSON.stringify(favorite),
+        destination,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        budget: budget.toString(),
+        partySize: partySize.toString(),
+        dietary: JSON.stringify(selectedDietary),
+        cuisines: JSON.stringify(selectedCuisines),
+        meals: JSON.stringify(selectedMeals),
       },
     });
   };
 
-  const handleUnfavorite = (restaurantId: string, event: any) => {
-    event.stopPropagation(); // Prevent card press
-    removeFavorite(restaurantId);
-  };
+  const isFormValid = destination.trim() !== '' && budget > 0 && selectedMeals.length > 0;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Favorites</Text>
-        <Text style={styles.headerSubtitle}>{favorites.length} saved places</Text>
+        <MotiView
+          from={{ opacity: 0, translateX: -20 }}
+          animate={{ opacity: 1, translateX: 0 }}
+          transition={{ type: 'timing', duration: 600 }}
+        >
+          <Text style={styles.headerTitle}>🗺️ Plan Food Trip</Text>
+          <Text style={styles.headerSubtitle}>AI-powered itinerary for foodies</Text>
+        </MotiView>
       </View>
 
       <ScrollView
@@ -53,124 +117,296 @@ export default function FavoritePage() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {favorites.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyEmoji}>❤️</Text>
-            <Text style={styles.emptyTitle}>No Favorites Yet</Text>
-            <Text style={styles.emptyText}>
-              Scan restaurants and tap the heart to save them here!
-            </Text>
+        {/* Destination Input */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 100 }}
+          style={styles.section}
+        >
+          <Text style={styles.sectionLabel}>📍 Destination</Text>
+          <View style={styles.inputContainer}>
+            <Icon name="MapPin" size={20} color="#FF3B30" />
+            <TextInput
+              style={styles.input}
+              placeholder="Where are you going? (e.g., New York)"
+              placeholderTextColor="#999"
+              value={destination}
+              onChangeText={setDestination}
+            />
           </View>
-        ) : (
-          favorites.map((favorite, index) => (
-            <Animated.View
-              key={favorite.restaurantId}
-              entering={FadeInDown.delay(index * 100).duration(400).springify()}
+        </MotiView>
+
+        {/* Trip Dates */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 200 }}
+          style={styles.section}
+        >
+          <Text style={styles.sectionLabel}>📅 Trip Dates</Text>
+          <View style={styles.dateRow}>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowStartPicker(true)}
             >
+              <Text style={styles.dateLabel}>From</Text>
+              <Text style={styles.dateValue}>
+                {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </Text>
+            </TouchableOpacity>
+
+            <Icon name="ArrowRight" size={20} color="#999" />
+
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowEndPicker(true)}
+            >
+              <Text style={styles.dateLabel}>To</Text>
+              <Text style={styles.dateValue}>
+                {endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.daysCount}>{calculateDays()} days</Text>
+
+          {showStartPicker && (
+            <DateTimePicker
+              value={startDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowStartPicker(false);
+                if (date) setStartDate(date);
+              }}
+              minimumDate={new Date()}
+            />
+          )}
+
+          {showEndPicker && (
+            <DateTimePicker
+              value={endDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowEndPicker(false);
+                if (date) setEndDate(date);
+              }}
+              minimumDate={startDate}
+            />
+          )}
+        </MotiView>
+
+        {/* Budget Slider */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 300 }}
+          style={styles.section}
+        >
+          <View style={styles.budgetHeader}>
+            <Text style={styles.sectionLabel}>💰 Total Budget</Text>
+            <Text style={styles.budgetValue}>${budget}</Text>
+          </View>
+          
+          <View style={styles.budgetSliderContainer}>
+            {[100, 250, 500, 1000, 2000].map((value) => (
               <TouchableOpacity
-                style={styles.card}
-                onPress={() => handleCardPress(favorite)}
-                activeOpacity={0.9}
+                key={value}
+                style={[
+                  styles.budgetOption,
+                  budget === value && styles.budgetOptionActive,
+                ]}
+                onPress={() => setBudget(value)}
               >
-                {/* Restaurant Image */}
-                <View style={styles.imageContainer}>
-                  {favorite.google_match.images && favorite.google_match.images.length > 0 ? (
-                    <Image
-                      source={{ uri: favorite.google_match.images[0] }}
-                      style={styles.cardImage}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View style={[styles.cardImage, styles.placeholderImage]}>
-                      <Text style={styles.placeholderEmoji}>🍽️</Text>
-                    </View>
-                  )}
-
-                  {/* Favorite Button Overlay */}
-                  <TouchableOpacity
-                    style={styles.favoriteButton}
-                    onPress={(e) => handleUnfavorite(favorite.restaurantId, e)}
-                    activeOpacity={0.8}
-                  >
-                    <View style={styles.favoriteButtonInner}>
-                      <Heart size={20} color="#FF3B30" fill="#FF3B30" strokeWidth={2} />
-                    </View>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Card Content */}
-                <View style={styles.cardContent}>
-                  {/* Restaurant Name */}
-                  <Text style={styles.restaurantName} numberOfLines={1}>
-                    {favorite.google_match.name}
-                  </Text>
-
-                  {/* Location Badge */}
-                  <View style={styles.locationBadge}>
-                    <MapPin size={12} color="#34C759" strokeWidth={2} />
-                    <Text style={styles.locationText} numberOfLines={1}>
-                      {favorite.google_match.address.split(',')[1]?.trim() || 'Location'}
-                    </Text>
-                  </View>
-
-                  {/* Description */}
-                  {favorite.yelp_ai?.summary && (
-                    <Text style={styles.description} numberOfLines={2}>
-                      {favorite.yelp_ai.summary}
-                    </Text>
-                  )}
-
-                  {/* Read More Link */}
-                  <Text style={styles.readMore}>Read more</Text>
-
-                  {/* Popular Dishes Preview */}
-                  {favorite.yelp_ai?.popular_dishes && favorite.yelp_ai.popular_dishes.length > 0 && (
-                    <View style={styles.dishesPreview}>
-                      <Text style={styles.dishesLabel}>Popular:</Text>
-                      <Text style={styles.dishesText} numberOfLines={1}>
-                        {favorite.yelp_ai.popular_dishes.slice(0, 2).join(', ')}
-                      </Text>
-                    </View>
-                  )}
-
-                  {/* Rating Row */}
-                  <View style={styles.ratingRow}>
-                    <View style={styles.ratingBadge}>
-                      <Star size={14} color="#FFD700" fill="#FFD700" />
-                      <Text style={styles.ratingText}>{favorite.google_match.rating}</Text>
-                    </View>
-                    <Text style={styles.priceLevel}>{favorite.google_match.price_level}</Text>
-                  </View>
-                </View>
+                <Text
+                  style={[
+                    styles.budgetOptionText,
+                    budget === value && styles.budgetOptionTextActive,
+                  ]}
+                >
+                  ${value}
+                </Text>
               </TouchableOpacity>
-            </Animated.View>
-          ))
-        )}
+            ))}
+          </View>
+          <Text style={styles.budgetHint}>
+            ~${Math.round(budget / calculateDays())} per day
+          </Text>
+        </MotiView>
+
+        {/* Party Size */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 400 }}
+          style={styles.section}
+        >
+          <Text style={styles.sectionLabel}>👥 Party Size</Text>
+          <View style={styles.counterContainer}>
+            <TouchableOpacity
+              style={styles.counterButton}
+              onPress={() => setPartySize(Math.max(1, partySize - 1))}
+            >
+              <Icon name="Minus" size={20} color="#FFF" />
+            </TouchableOpacity>
+            <Text style={styles.counterValue}>{partySize} {partySize === 1 ? 'person' : 'people'}</Text>
+            <TouchableOpacity
+              style={styles.counterButton}
+              onPress={() => setPartySize(Math.min(10, partySize + 1))}
+            >
+              <Icon name="Plus" size={20} color="#FFF" />
+            </TouchableOpacity>
+          </View>
+        </MotiView>
+
+        {/* Dietary Restrictions */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 500 }}
+          style={styles.section}
+        >
+          <Text style={styles.sectionLabel}>🍽️ Dietary Restrictions</Text>
+          <View style={styles.optionsGrid}>
+            {DIETARY_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionChip,
+                  selectedDietary.includes(option.id) && styles.optionChipActive,
+                ]}
+                onPress={() => toggleSelection(option.id, selectedDietary, setSelectedDietary)}
+              >
+                <Text style={styles.optionEmoji}>{option.emoji}</Text>
+                <Text
+                  style={[
+                    styles.optionText,
+                    selectedDietary.includes(option.id) && styles.optionTextActive,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </MotiView>
+
+        {/* Cuisine Preferences */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 600 }}
+          style={styles.section}
+        >
+          <Text style={styles.sectionLabel}>🌮 Cuisine Preferences</Text>
+          <View style={styles.optionsGrid}>
+            {CUISINE_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionChip,
+                  selectedCuisines.includes(option.id) && styles.optionChipActive,
+                ]}
+                onPress={() => toggleSelection(option.id, selectedCuisines, setSelectedCuisines)}
+              >
+                <Text style={styles.optionEmoji}>{option.emoji}</Text>
+                <Text
+                  style={[
+                    styles.optionText,
+                    selectedCuisines.includes(option.id) && styles.optionTextActive,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </MotiView>
+
+        {/* Meal Types */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', delay: 700 }}
+          style={styles.section}
+        >
+          <Text style={styles.sectionLabel}>🍳 Meals to Include</Text>
+          <View style={styles.mealTypesRow}>
+            {MEAL_TYPES.map((meal) => (
+              <TouchableOpacity
+                key={meal.id}
+                style={[
+                  styles.mealTypeChip,
+                  selectedMeals.includes(meal.id) && styles.mealTypeChipActive,
+                ]}
+                onPress={() => toggleSelection(meal.id, selectedMeals, setSelectedMeals)}
+              >
+                <Text style={styles.mealTypeEmoji}>{meal.emoji}</Text>
+                <Text
+                  style={[
+                    styles.mealTypeText,
+                    selectedMeals.includes(meal.id) && styles.mealTypeTextActive,
+                  ]}
+                >
+                  {meal.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </MotiView>
+
+        {/* Generate Button */}
+        <MotiView
+          from={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', delay: 800 }}
+          style={styles.buttonContainer}
+        >
+          <TouchableOpacity
+            style={[styles.generateButton, !isFormValid && styles.generateButtonDisabled]}
+            onPress={handleGenerate}
+            disabled={!isFormValid}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={isFormValid ? ['#FF3B30', '#FF6B6B'] : ['#CCC', '#999']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.generateGradient}
+            >
+              <Icon name="Sparkles" size={24} color="#FFF" />
+              <Text style={styles.generateButtonText}>Generate Itinerary</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </MotiView>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F8F9FB',
   },
   header: {
-    paddingTop: 70,
-    paddingBottom: 20,
     paddingHorizontal: 24,
-    backgroundColor: '#fff',
+    paddingTop: 20,
+    paddingBottom: 20,
+    backgroundColor: '#FFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 34,
-    fontWeight: '700',
-    color: '#000',
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#1A1A1A',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 15,
-    color: '#666',
+    color: '#8E8E93',
     fontWeight: '500',
   },
   scrollView: {
@@ -178,150 +414,221 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 24,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 80,
+  section: {
+    marginBottom: 28,
   },
-  emptyEmoji: {
-    fontSize: 80,
-    marginBottom: 20,
-  },
-  emptyTitle: {
-    fontSize: 24,
+  sectionLabel: {
+    fontSize: 17,
     fontWeight: '700',
-    color: '#000',
+    color: '#1A1A1A',
     marginBottom: 12,
   },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 280,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    marginBottom: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  cardImage: {
-    width: '100%',
-    height: 200,
-  },
-  placeholderImage: {
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderEmoji: {
-    fontSize: 64,
-  },
-  favoriteButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-  },
-  favoriteButtonInner: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  cardContent: {
-    padding: 20,
-  },
-  restaurantName: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 8,
-  },
-  locationBadge: {
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    gap: 6,
-    alignSelf: 'flex-start',
-    marginBottom: 12,
-  },
-  locationText: {
-    fontSize: 13,
-    color: '#34C759',
-    fontWeight: '600',
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  readMore: {
-    fontSize: 14,
-    color: '#FF3B30',
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  dishesPreview: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 59, 48, 0.05)',
-    padding: 10,
-    borderRadius: 12,
-    marginBottom: 12,
-    gap: 8,
-  },
-  dishesLabel: {
-    fontSize: 13,
-    color: '#FF3B30',
-    fontWeight: '700',
-  },
-  dishesText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#FF3B30',
-    fontWeight: '500',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 56,
+    borderWidth: 1.5,
+    borderColor: '#F0F0F0',
     gap: 12,
   },
-  ratingBadge: {
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
+    gap: 16,
   },
-  ratingText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#000',
+  dateButton: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#F0F0F0',
   },
-  priceLevel: {
-    fontSize: 16,
+  dateLabel: {
+    fontSize: 13,
+    color: '#8E8E93',
     fontWeight: '600',
-    color: '#666',
+    marginBottom: 4,
+  },
+  dateValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  daysCount: {
+    fontSize: 14,
+    color: '#FF3B30',
+    fontWeight: '600',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  budgetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  budgetValue: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FF3B30',
+  },
+  budgetSliderContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+  },
+  budgetOption: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#F0F0F0',
+  },
+  budgetOptionActive: {
+    backgroundColor: '#FF3B30',
+    borderColor: '#FF3B30',
+  },
+  budgetOptionText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#8E8E93',
+  },
+  budgetOptionTextActive: {
+    color: '#FFF',
+  },
+  budgetHint: {
+    fontSize: 13,
+    color: '#8E8E93',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  counterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 16,
+    gap: 24,
+    borderWidth: 1.5,
+    borderColor: '#F0F0F0',
+  },
+  counterButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#1A1A1A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  counterValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    minWidth: 100,
+    textAlign: 'center',
+  },
+  optionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  optionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: '#F0F0F0',
+  },
+  optionChipActive: {
+    backgroundColor: '#FF3B30',
+    borderColor: '#FF3B30',
+  },
+  optionEmoji: {
+    fontSize: 16,
+  },
+  optionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A1A',
+  },
+  optionTextActive: {
+    color: '#FFF',
+  },
+  mealTypesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  mealTypeChip: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: '#F0F0F0',
+  },
+  mealTypeChipActive: {
+    backgroundColor: '#FF3B30',
+    borderColor: '#FF3B30',
+  },
+  mealTypeEmoji: {
+    fontSize: 32,
+  },
+  mealTypeText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  mealTypeTextActive: {
+    color: '#FFF',
+  },
+  buttonContainer: {
+    marginTop: 12,
+  },
+  generateButton: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#FF3B30',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  generateButtonDisabled: {
+    shadowOpacity: 0,
+  },
+  generateGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    gap: 12,
+  },
+  generateButtonText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFF',
   },
 });

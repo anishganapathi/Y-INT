@@ -195,8 +195,6 @@ export default function HomePage() {
                         keyExtractor={item => item.id}
                     />
                 </View>
-
-
             </ScrollView>
         </SafeAreaView>
     );

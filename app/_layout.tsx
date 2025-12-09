@@ -51,6 +51,31 @@ export default function RootLayout() {
             gestureEnabled: true,
           }} 
         />
+        <Stack.Screen 
+          name="itinerary/generating" 
+          options={{ 
+            headerShown: false,
+            presentation: 'fullScreenModal',
+            animation: 'fade',
+          }} 
+        />
+        <Stack.Screen 
+          name="itinerary/preview" 
+          options={{ 
+            headerShown: false,
+            presentation: 'card',
+            animation: 'slide_from_bottom',
+          }} 
+        />
+        <Stack.Screen 
+          name="itinerary/[trip_id]/index" 
+          options={{ 
+            headerShown: false,
+            presentation: 'card',
+            animation: 'slide_from_bottom',
+            gestureEnabled: true,
+          }} 
+        />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         </Stack>
         <StatusBar style="auto" />
