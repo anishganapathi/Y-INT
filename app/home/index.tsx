@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
-const CATEGORIES = ['Restaurants', 'Repair', 'Movers', 'Plumbers', 'Cleaning'];
+const CATEGORIES = ['Restaurants', 'Saved', 'Itenaries', 'Plumbers', 'Cleaning'];
 
 const DESTINATIONS = [
     {
