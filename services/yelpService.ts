@@ -87,7 +87,11 @@ export class YelpService {
 
       return response.data.businesses || [];
     } catch (error: any) {
-      console.error('Yelp search restaurants error:', error?.response?.data || error?.message || error);
+      // Only log unexpected errors (400/401/403/500+), not 404s
+      const status = error?.response?.status;
+      if (status && status !== 404) {
+        console.warn('Yelp search error:', status, error?.response?.data?.error?.description || error?.message);
+      }
       return [];
     }
   }
@@ -148,8 +152,12 @@ export class YelpService {
       });
 
       return response.data.businesses?.[0] || null;
-    } catch (error) {
-      console.error('Yelp search error:', error);
+    } catch (error: any) {
+      // Only log unexpected errors
+      const status = error?.response?.status;
+      if (status && status !== 404) {
+        console.warn('Yelp search error:', status);
+      }
       return null;
     }
   }
@@ -167,7 +175,10 @@ export class YelpService {
 
       return response.data;
     } catch (error: any) {
-      console.error('Yelp details error:', error?.response?.data || error?.message || error);
+      // Only log unexpected errors (not 404s which are handled gracefully)
+      if (error?.response?.status !== 404) {
+        console.warn('Yelp details error (non-404):', error?.response?.status || error?.message);
+      }
       // Return null instead of throwing to allow graceful degradation
       return null;
     }
@@ -188,8 +199,13 @@ export class YelpService {
       });
 
       return response.data.reviews || [];
-    } catch (error) {
-      console.error('Yelp reviews error:', error);
+    } catch (error: any) {
+      // 404 is expected for some businesses - reviews may not be available via API
+      // Only log unexpected errors (not 404s)
+      if (error?.response?.status !== 404) {
+        console.warn('Yelp reviews error (non-404):', error?.response?.status || error?.message);
+      }
+      // Silently return empty array for any error
       return [];
     }
   }

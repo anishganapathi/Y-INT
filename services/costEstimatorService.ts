@@ -76,8 +76,7 @@ export class CostEstimatorService {
             };
           }
         } catch (error) {
-          console.error('Error getting location:', error);
-          // Use default location on error
+          // Silently use default location on error
           location = {
             lat: 37.7749,
             lng: -122.4194,
@@ -97,7 +96,7 @@ export class CostEstimatorService {
       const business = await this.searchRestaurantByName(restaurantName, location);
       
       if (!business) {
-        console.error(`Restaurant not found: ${restaurantName}`);
+        // Silently return null - error will be handled by caller
         return null;
       }
 
@@ -109,7 +108,6 @@ export class CostEstimatorService {
       
       // If details fetch failed, use search result data
       if (!details) {
-        console.log('Using search result data for business details');
         details = {
           name: business.name,
           rating: business.rating || 0,
@@ -164,8 +162,11 @@ export class CostEstimatorService {
         summary,
         categories: business.categories.map(cat => cat.title),
       };
-    } catch (error) {
-      console.error('Cost estimation error:', error);
+    } catch (error: any) {
+      // Only log unexpected errors
+      if (error?.message && !error?.message.includes('404')) {
+        console.warn('Cost estimation error:', error?.message);
+      }
       return null;
     }
   }
@@ -289,8 +290,8 @@ export class CostEstimatorService {
 
       // Last resort: return first result if available
       return restaurants[0] || null;
-    } catch (error) {
-      console.error('Error searching restaurant:', error);
+    } catch (error: any) {
+      // Silently return null - this is expected for some searches
       return null;
     }
   }
