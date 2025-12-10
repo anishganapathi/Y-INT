@@ -7,8 +7,10 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MotiView } from 'moti';
+import { BlurView } from 'expo-blur';
 import Icon from '@/components/LucideIcons';
 
 export default function ProfilePage() {
@@ -32,13 +34,21 @@ export default function ProfilePage() {
       onPress: () => console.log('Notifications'),
     },
     {
-      id: 'settings',
-      icon: 'Settings',
-      iconColor: '#86EFAC',
-      title: 'Settings',
-      subtitle: 'Security, Privacy',
-      onPress: () => console.log('Settings'),
+      id: 'Saved',
+      icon: 'Save',
+      iconColor: '#FA6868',
+      title: 'Saved',
+      subtitle: 'Your saved places',
+      onPress: () => console.log('Saved'),
     },
+    {
+        id: 'settings',
+        icon: 'Settings',
+        iconColor: '#86EFAC',
+        title: 'Settings',
+        subtitle: 'Security, Privacy',
+        onPress: () => console.log('Settings'),
+      },
   ];
 
     return (
