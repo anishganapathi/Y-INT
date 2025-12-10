@@ -196,11 +196,12 @@ export default function ItineraryScreen() {
       </MotiView>
 
       {/* Day Tabs - Compact */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.dayTabs}
-      >
+      <View style={styles.dayTabsContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.dayTabs}
+        >
         {itinerary.days.map((day, index) => {
           const isActive = selectedDay === day.dayNumber;
           const date = new Date(day.date);
@@ -224,24 +225,17 @@ export default function ItineraryScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={[styles.dayTabNumber, isActive && styles.dayTabNumberActive]}>
-                  {day.dayNumber}
-                </Text>
-                <Text style={[styles.dayTabLabel, isActive && styles.dayTabLabelActive]}>
-                  {date.toLocaleDateString('en-US', { month: 'short' })}
-                </Text>
-                <Text style={[styles.dayTabDate, isActive && styles.dayTabDateActive]}>
                   {date.getDate()}
                 </Text>
-                
-                {/* Active Indicator Dot */}
-                {isActive && (
-                  <View style={styles.activeDot} />
-                )}
+                <Text style={[styles.dayTabLabel, isActive && styles.dayTabLabelActive]}>
+                  {date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                </Text>
               </TouchableOpacity>
             </MotiView>
           );
         })}
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       {/* Day Content */}
       <ScrollView
@@ -702,69 +696,57 @@ const styles = StyleSheet.create({
   },
   dayTabs: {
     paddingHorizontal: 20,
-    gap: 10,
-    marginBottom: 4,
-    paddingVertical: 8,
+    gap: 12,
+    marginBottom: 8,
+    paddingVertical: 10,
   },
   dayTab: {
     backgroundColor: '#FFF',
-    borderRadius: 18,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    width: 68,
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1.5,
+    borderColor: '#F0F0F0',
+    minWidth: 75,
+    minHeight: 75,
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   dayTabActive: {
     backgroundColor: '#FFE8E8',
     borderColor: '#FF8A80',
+    borderWidth: 2,
     shadowColor: '#FF8A80',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 4,
   },
   dayTabNumber: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '800',
     color: '#1A1A1A',
-    marginBottom: 4,
+    letterSpacing: -0.5,
+    lineHeight: 28,
   },
   dayTabNumberActive: {
     color: '#FF8A80',
   },
   dayTabLabel: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
     color: '#8E8E93',
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 2,
+    marginTop: 4,
+    textTransform: 'uppercase',
   },
   dayTabLabelActive: {
     color: '#FF8A80',
-  },
-  dayTabDate: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  dayTabDateActive: {
-    color: '#FF8A80',
-  },
-  activeDot: {
-    position: 'absolute',
-    bottom: 6,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#FF8A80',
   },
   scrollView: {
     flexGrow: 1,
