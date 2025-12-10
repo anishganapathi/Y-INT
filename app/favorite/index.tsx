@@ -18,8 +18,6 @@ import Icon from '@/components/LucideIcons';
 import { MotiView } from 'moti';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const { width } = Dimensions.get('window');
-
 const DIETARY_OPTIONS = [
   { id: 'vegan', label: 'Vegan' },
   { id: 'vegetarian', label: 'Vegetarian' },
@@ -573,7 +571,7 @@ const styles = StyleSheet.create({
   },
   generateButton: {
     flexDirection: 'row',
-    backgroundColor: '#FF8A80',
+    backgroundColor: '#FA6868',
     borderRadius: 16,
     paddingVertical: 18,
     justifyContent: 'center',
