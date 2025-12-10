@@ -81,7 +81,7 @@ export default function ProfilePage() {
         >
           <View style={styles.avatarWrapper}>
             <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400' }}
+              source={require('@/assets/images/avatar.png')}
               style={styles.avatar}
             />
           </View>
