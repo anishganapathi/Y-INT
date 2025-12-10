@@ -182,11 +182,11 @@ export default function HomePage() {
                                         <MotiText style={styles.reviewCount}>{item.reviews} reviews</MotiText>
                                     </View>
 
-                                    <TouchableOpacity style={styles.seeMoreButton}>
-                                        <BlurView intensity={30} tint="dark" style={styles.seeMoreBlur}>
+                                    <TouchableOpacity style={styles.seeMoreButton} activeOpacity={0.8}>
+                                        <BlurView intensity={80} tint="dark" style={styles.seeMoreBlur}>
                                             <MotiText style={styles.seeMoreText}>See more</MotiText>
                                             <View style={styles.arrowCircle}>
-                                                <Icon name="ChevronRight" size={16} color="#1A1A1A" />
+                                                <Icon name="ArrowRight" size={18} color="#1A1A1A" />
                                             </View>
                                         </BlurView>
                                     </TouchableOpacity>
@@ -404,28 +404,44 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     seeMoreButton: {
-        borderRadius: 25,
+        borderRadius: 30,
         overflow: 'hidden',
+        alignSelf: 'flex-start',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
     },
     seeMoreBlur: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 6,
-        paddingLeft: 24,
-        backgroundColor: 'rgba(30,30,30,0.85)',
+        paddingVertical: 8,
+        paddingLeft: 20,
+        paddingRight: 8,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        gap: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
     seeMoreText: {
         color: '#FFF',
-        fontWeight: '600',
-        fontSize: 16,
+        fontWeight: '700',
+        fontSize: 15,
+        letterSpacing: 0.3,
     },
     arrowCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         backgroundColor: '#FFF',
         justifyContent: 'center',
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
     }
 });
