@@ -10,7 +10,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MotiView } from 'moti';
-import { BlurView } from 'expo-blur';
 import Icon from '@/components/LucideIcons';
 
 export default function ProfilePage() {
@@ -52,7 +51,22 @@ export default function ProfilePage() {
   ];
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Header */}
+      <MotiView
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 700 }}
+        style={styles.header}
+      >
+        <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
+          <Icon name="Settings" size={22} color="#1A1A1A" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
+          <Icon name="Share2" size={22} color="#1A1A1A" />
+        </TouchableOpacity>
+      </MotiView>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -116,7 +130,7 @@ export default function ProfilePage() {
         {/* Bottom Spacing */}
         <View style={{ height: 40 }} />
       </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -125,12 +139,33 @@ const styles = StyleSheet.create({
         flex: 1,
     backgroundColor: '#F5F5F7',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 10,
+  },
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 100,
+    paddingTop: 40,
   },
   avatarContainer: {
     alignItems: 'center',
@@ -142,7 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 70,
     backgroundColor: '#FFF',
     padding: 8,
-    shadowColor: '#FF3B30',
+    shadowColor: '#FCF8F8',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 24,
