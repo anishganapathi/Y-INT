@@ -8,7 +8,7 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from "react-native-reanimated";
-import { Home, Compass, Heart, User } from 'lucide-react-native';
+import { Home, Compass, Map, User } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -26,14 +26,14 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
     { label: "Home", screen: HomePage },
     { label: "Explore", screen: ExplorePage },
-    { label: "Favorite", screen: FavoritePage },
+    { label: "Trip", screen: FavoritePage },
     { label: "Profile", screen: ProfilePage },
 ];
 
 const ICON_MAPPING: Record<string, React.ElementType> = {
     Home: Home,
     Explore: Compass,
-    Favorite: Heart,
+    Trip: Map,
     Profile: User,
 };
 
