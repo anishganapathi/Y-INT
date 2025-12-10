@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   dayTabsContainer: {
-    backgroundColor: '#F8F9FB',
+    backgroundColor: '#efefef',
     paddingTop: 8,
     paddingBottom: 16,
     shadowColor: '#000',
@@ -762,7 +762,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 4,
+    paddingTop: 16,
     paddingBottom: 120,
     flexGrow: 1,
   },
