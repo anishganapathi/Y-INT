@@ -31,9 +31,8 @@ export default function ItineraryScreen() {
   const [selectedDay, setSelectedDay] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [expandedMeals, setExpandedMeals] = useState<{ [key: string]: boolean }>({});
-  const { addSavedItinerary } = useSavedItineraries();
+  const { addSavedItinerary, getSavedItineraryById } = useSavedItineraries();
 
   useEffect(() => {
     loadItinerary();
@@ -42,8 +41,20 @@ export default function ItineraryScreen() {
   const loadItinerary = async () => {
     try {
       const tripId = params.trip_id as string;
-      console.log('📥 Loading itinerary from Supabase:', tripId);
+      console.log('📥 Loading itinerary:', tripId);
       
+      // First, check if itinerary exists in saved itineraries
+      const savedItinerary = await getSavedItineraryById(tripId);
+      
+      if (savedItinerary) {
+        console.log('✅ Found itinerary in saved:', savedItinerary.destination);
+        setItinerary(savedItinerary);
+        setLoading(false);
+        return;
+      }
+      
+      // If not found in saved, try loading from Supabase
+      console.log('📥 Trying to load from Supabase...');
       const data = await supabaseItineraryService.loadItinerary(tripId);
       
       if (data) {
@@ -111,13 +122,7 @@ export default function ItineraryScreen() {
         // Save to saved itineraries context
         await addSavedItinerary(updatedItinerary);
         
-        setShowSaveSuccess(true);
         console.log('✅ Itinerary saved & confirmed!');
-        
-        // Hide success message after 3 seconds
-        setTimeout(() => {
-          setShowSaveSuccess(false);
-        }, 3000);
       }
     } catch (error) {
       console.error('❌ Error saving itinerary:', error);
@@ -465,7 +470,7 @@ export default function ItineraryScreen() {
       </ScrollView>
 
       {/* Floating Save Button */}
-      {itinerary.status === 'draft' && !showSaveSuccess && (
+      {itinerary.status === 'draft' && (
         <MotiView
           from={{ opacity: 0, translateY: 100 }}
           animate={{ opacity: 1, translateY: 0 }}
@@ -503,35 +508,6 @@ export default function ItineraryScreen() {
               )}
             </LinearGradient>
           </TouchableOpacity>
-        </MotiView>
-      )}
-
-      {/* Success Toast */}
-      {showSaveSuccess && (
-        <MotiView
-          from={{ opacity: 0, translateY: -20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          exit={{ opacity: 0, translateY: -20 }}
-          transition={{ type: 'spring' }}
-          style={styles.successToast}
-        >
-          <View style={styles.successToastContent}>
-            <Icon name="CheckCircle" size={24} color="#34C759" />
-            <Text style={styles.successToastText}>Itinerary Saved! ✨</Text>
-          </View>
-        </MotiView>
-      )}
-
-      {/* Saved Badge */}
-      {itinerary.status === 'confirmed' && (
-        <MotiView
-          from={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring' }}
-          style={styles.savedBadge}
-        >
-          <Icon name="CheckCircle" size={16} color="#34C759" />
-          <Text style={styles.savedBadgeText}>Saved</Text>
         </MotiView>
       )}
     </View>
@@ -1062,52 +1038,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#FFF',
     letterSpacing: 0.5,
-  },
-  successToast: {
-    position: 'absolute',
-    top: 100,
-    left: 20,
-    right: 20,
-    zIndex: 1000,
-  },
-  successToastContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 20,
-    gap: 12,
-    shadowColor: '#34C759',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-    borderWidth: 2,
-    borderColor: '#34C759',
-  },
-  successToastText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  savedBadge: {
-    position: 'absolute',
-    top: 20,
-    right: 70,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    gap: 6,
-    borderWidth: 1.5,
-    borderColor: '#34C759',
-  },
-  savedBadgeText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#34C759',
   },
   expandButton: {
     flexDirection: 'row',

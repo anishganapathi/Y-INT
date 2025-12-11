@@ -17,6 +17,7 @@ interface SavedItinerariesContextType {
   removeSavedItinerary: (itineraryId: string) => Promise<void>;
   isSaved: (itineraryId: string) => boolean;
   loadSavedItineraries: () => Promise<void>;
+  getSavedItineraryById: (itineraryId: string) => Promise<SavedItinerary | null>;
 }
 
 const SavedItinerariesContext = createContext<SavedItinerariesContextType | undefined>(undefined);
@@ -74,6 +75,28 @@ export function SavedItinerariesProvider({ children }: { children: ReactNode }) 
     return savedItineraries.some(item => item.id === itineraryId);
   };
 
+  const getSavedItineraryById = async (itineraryId: string): Promise<SavedItinerary | null> => {
+    // First check in-memory state
+    const found = savedItineraries.find(item => item.id === itineraryId);
+    if (found) {
+      return found;
+    }
+    
+    // If not found, check storage
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed: SavedItinerary[] = JSON.parse(stored);
+        const storedItem = parsed.find(item => item.id === itineraryId);
+        return storedItem || null;
+      }
+    } catch (error) {
+      console.error('Error getting saved itinerary:', error);
+    }
+    
+    return null;
+  };
+
   return (
     <SavedItinerariesContext.Provider 
       value={{ 
@@ -82,6 +105,7 @@ export function SavedItinerariesProvider({ children }: { children: ReactNode }) 
         removeSavedItinerary, 
         isSaved,
         loadSavedItineraries,
+        getSavedItineraryById,
       }}
     >
       {children}
