@@ -121,9 +121,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       const recognitionOutput = restaurant as RecognitionOutput;
       newFavorite = {
         ...recognitionOutput,
-        savedAt: new Date().toISOString(),
-        restaurantId,
-      };
+      savedAt: new Date().toISOString(),
+      restaurantId,
+    };
     }
 
     const updated = [newFavorite, ...favorites.filter(fav => fav.restaurantId !== restaurantId)];
