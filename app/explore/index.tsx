@@ -7,6 +7,7 @@ import { MotiView, MotiText } from 'moti';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { YelpService, YelpBusiness } from '@/services/yelpService';
+import { useFavorites } from '@/context/FavoritesContext';
 
 const { width } = Dimensions.get('window');
 
@@ -14,13 +15,14 @@ const yelpService = new YelpService();
 
 export default function ExplorePage() {
     const router = useRouter();
-    const [savedPlaces, setSavedPlaces] = useState<Set<string>>(new Set());
+    const { addFavorite, removeFavorite, isFavorite, loadFavorites } = useFavorites();
     const [newRestaurants, setNewRestaurants] = useState<YelpBusiness[]>([]);
     const [nearbyRestaurants, setNearbyRestaurants] = useState<YelpBusiness[]>([]);
     const [loading, setLoading] = useState(true);
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
     useEffect(() => {
+        loadFavorites();
         loadRestaurants();
     }, []);
 
@@ -90,16 +92,12 @@ export default function ExplorePage() {
         }
     };
 
-    const toggleSave = (id: string) => {
-        setSavedPlaces(prev => {
-            const newSet = new Set(prev);
-            if (newSet.has(id)) {
-                newSet.delete(id);
-            } else {
-                newSet.add(id);
-            }
-            return newSet;
-        });
+    const handleToggleFavorite = (restaurant: YelpBusiness) => {
+        if (isFavorite(restaurant.id)) {
+            removeFavorite(restaurant.id);
+        } else {
+            addFavorite(restaurant, restaurant.id);
+        }
     };
 
     const handleRestaurantPress = (restaurant: YelpBusiness) => {
@@ -240,13 +238,14 @@ export default function ExplorePage() {
                                         {/* Bookmark Icon */}
                                         <TouchableOpacity
                                             style={styles.bookmarkButton}
-                                            onPress={() => toggleSave(item.id)}
+                                            onPress={() => handleToggleFavorite(item)}
+                                            activeOpacity={0.7}
                                         >
                                             <Icon
-                                                name="Bookmark"
+                                                name="Heart"
                                                 size={20}
-                                                color="white"
-                                                fill={savedPlaces.has(item.id) ? 'white' : 'transparent'}
+                                                color={isFavorite(item.id) ? "#FF3B30" : "white"}
+                                                fill={isFavorite(item.id) ? "#FF3B30" : "transparent"}
                                             />
                                         </TouchableOpacity>
 

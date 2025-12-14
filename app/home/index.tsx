@@ -8,6 +8,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { YelpService, YelpBusiness } from '@/services/yelpService';
+import { useFavorites } from '@/context/FavoritesContext';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +18,7 @@ const yelpService = new YelpService();
 
 export default function HomePage() {
     const router = useRouter();
+    const { favorites, addFavorite, removeFavorite, isFavorite, loadFavorites } = useFavorites();
     const [activeCategory, setActiveCategory] = useState('Restaurants');
     const [restaurants, setRestaurants] = useState<YelpBusiness[]>([]);
     const [loading, setLoading] = useState(true);
@@ -24,6 +26,7 @@ export default function HomePage() {
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
     useEffect(() => {
+        loadFavorites();
         loadRestaurants();
     }, []);
 
@@ -143,6 +146,58 @@ export default function HomePage() {
         });
     };
 
+    const handleToggleFavorite = (restaurant: YelpBusiness) => {
+        if (isFavorite(restaurant.id)) {
+            removeFavorite(restaurant.id);
+        } else {
+            addFavorite(restaurant, restaurant.id);
+        }
+    };
+
+    // Get saved restaurants for "Saved" tab
+    const savedRestaurants = favorites
+        .filter(fav => fav.name || fav.google_match?.name)
+        .map(fav => {
+            if (fav.name) {
+                // Already in YelpBusiness format
+                return {
+                    id: fav.restaurantId,
+                    name: fav.name,
+                    image_url: fav.image_url || '',
+                    rating: fav.rating || 0,
+                    review_count: fav.review_count || 0,
+                    location: fav.location || { address1: '', city: '', state: '', country: '' },
+                    coordinates: fav.coordinates || { latitude: 0, longitude: 0 },
+                    categories: fav.categories || [],
+                    phone: fav.phone || '',
+                    price: fav.price,
+                } as YelpBusiness;
+            } else {
+                // Convert from RecognitionOutput format
+                return {
+                    id: fav.restaurantId,
+                    name: fav.google_match?.name || '',
+                    image_url: fav.google_match?.images?.[0] || '',
+                    rating: fav.google_match?.rating || 0,
+                    review_count: fav.yelp_ai?.review_count || 0,
+                    location: {
+                        address1: fav.google_match?.address?.split(',')[0] || '',
+                        city: fav.google_match?.address?.split(',')[1]?.trim() || '',
+                        state: fav.google_match?.address?.split(',')[2]?.trim() || '',
+                        country: 'US',
+                    },
+                    coordinates: fav.google_match?.location ? {
+                        latitude: fav.google_match.location.lat,
+                        longitude: fav.google_match.location.lng,
+                    } : { latitude: 0, longitude: 0 },
+                    categories: fav.yelp_ai?.categories?.map(c => ({ alias: c.toLowerCase(), title: c })) || [],
+                    phone: fav.google_match?.phone || '',
+                } as YelpBusiness;
+            }
+        });
+
+    const displayRestaurants = activeCategory === 'Saved' ? savedRestaurants : restaurants;
+
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
             <ScrollView
@@ -255,14 +310,16 @@ export default function HomePage() {
                             <ActivityIndicator size="large" color="#FF8A80" />
                             <MotiText style={styles.loadingText}>Finding amazing restaurants...</MotiText>
                         </View>
-                    ) : restaurants.length === 0 ? (
+                    ) : displayRestaurants.length === 0 ? (
                         <View style={styles.emptyContainer}>
-                            <Icon name="UtensilsCrossed" size={48} color="#8E8E93" />
-                            <MotiText style={styles.emptyText}>No restaurants found nearby</MotiText>
+                            <Icon name={activeCategory === 'Saved' ? "Heart" : "UtensilsCrossed"} size={48} color="#8E8E93" />
+                            <MotiText style={styles.emptyText}>
+                                {activeCategory === 'Saved' ? 'No saved restaurants yet' : 'No restaurants found nearby'}
+                            </MotiText>
                         </View>
                     ) : (
                     <FlatList
-                            data={restaurants}
+                            data={displayRestaurants}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         pagingEnabled
@@ -289,9 +346,18 @@ export default function HomePage() {
                                 />
 
                                 {/* Top Right Heart */}
-                                <View style={styles.favoriteButton}>
-                                    <Icon name="Heart" size={20} color="white" />
-                                </View>
+                                <TouchableOpacity 
+                                    style={styles.favoriteButton}
+                                    onPress={() => handleToggleFavorite(item)}
+                                    activeOpacity={0.7}
+                                >
+                                    <Icon 
+                                        name="Heart" 
+                                        size={20} 
+                                        color={isFavorite(item.id) ? "#FF3B30" : "white"}
+                                        fill={isFavorite(item.id) ? "#FF3B30" : "transparent"}
+                                    />
+                                </TouchableOpacity>
 
                                 {/* Bottom Content */}
                                 <View style={styles.cardContent}>

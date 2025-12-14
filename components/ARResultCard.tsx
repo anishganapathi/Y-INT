@@ -4,12 +4,13 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Star, MapPin, Clock, Phone, Heart, Award } from 'lucide-react-native';
 import { RecognitionOutput } from '@/services/cameraRecognitionEngine';
+import { useFavorites } from '@/context/FavoritesContext';
 
 interface ARResultCardProps {
   result: RecognitionOutput;
@@ -19,6 +20,17 @@ const { width } = Dimensions.get('window');
 
 export default function ARResultCard({ result }: ARResultCardProps): React.JSX.Element {
   const { google_match, yelp_ai, personalization, confidence_score } = result;
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const restaurantId = google_match.place_id || `restaurant_${Date.now()}`;
+  const isFav = isFavorite(restaurantId);
+
+  const handleToggleFavorite = () => {
+    if (isFav) {
+      removeFavorite(restaurantId);
+    } else {
+      addFavorite(result, restaurantId);
+    }
+  };
 
   if (!google_match.name) {
     return (
@@ -50,9 +62,17 @@ export default function ARResultCard({ result }: ARResultCardProps): React.JSX.E
           <View style={styles.header}>
             <View style={styles.titleRow}>
               <Text style={styles.restaurantName}>{google_match.name}</Text>
-              {personalization.is_favorite && (
-                <Heart size={24} color="#FF3B30" fill="#FF3B30" />
-              )}
+              <TouchableOpacity
+                onPress={handleToggleFavorite}
+                activeOpacity={0.7}
+                style={styles.heartButton}
+              >
+                <Heart 
+                  size={24} 
+                  color={isFav ? "#FF3B30" : "#666"} 
+                  fill={isFav ? "#FF3B30" : "transparent"}
+                />
+              </TouchableOpacity>
             </View>
             
             <View style={styles.ratingRow}>
@@ -209,6 +229,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
+  },
+  heartButton: {
+    padding: 4,
   },
   restaurantName: {
     fontSize: 24,
