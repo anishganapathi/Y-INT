@@ -53,7 +53,7 @@ export default function RestaurantDetailPage() {
   }
 
   const { google_match, yelp_ai, personalization } = restaurantData;
-  
+
   // Safety checks with default values
   const safeGoogleMatch = google_match || {};
   const safeYelpAi = yelp_ai || {};

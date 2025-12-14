@@ -207,11 +207,11 @@ export default function ItineraryScreen() {
 
       {/* Day Tabs - Compact */}
       <View style={styles.dayTabsContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.dayTabs}
-        >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.dayTabs}
+      >
         {itinerary.days.map((day, index) => {
           const isActive = selectedDay === day.dayNumber;
           const date = new Date(day.date);
@@ -244,7 +244,7 @@ export default function ItineraryScreen() {
             </MotiView>
           );
         })}
-        </ScrollView>
+      </ScrollView>
       </View>
 
       {/* Day Content */}

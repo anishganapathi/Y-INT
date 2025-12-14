@@ -142,17 +142,17 @@ export default function ChatPage() {
       setIsTyping(false);
     } else {
       // Regular AI response
-      setTimeout(() => {
+    setTimeout(() => {
         const aiResponse = generateAIResponse(userInput);
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: aiResponse,
-          sender: 'ai',
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, aiMessage]);
-        setIsTyping(false);
-      }, 1500);
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: aiResponse,
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      setIsTyping(false);
+    }, 1500);
     }
   };
 
@@ -632,20 +632,20 @@ export default function ChatPage() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        {/* Messages List */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.messagesList}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={renderTypingIndicator}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+      {/* Messages List */}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.messagesList}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={renderTypingIndicator}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           keyboardShouldPersistTaps="handled"
-        />
+      />
 
-        {/* Input Area */}
+      {/* Input Area */}
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
             <TouchableOpacity style={styles.attachButton}>

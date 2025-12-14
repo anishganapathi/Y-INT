@@ -2,7 +2,6 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { FavoritesProvider } from '@/context/FavoritesContext';
@@ -16,15 +15,14 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <FavoritesProvider>
-      <SavedItinerariesProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
+    <FavoritesProvider>
+    <SavedItinerariesProvider>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen 
@@ -41,9 +39,9 @@ export default function RootLayout() {
           options={{ 
             headerShown: false,
             presentation: 'card',
-            animation: 'slide_from_bottom',
+            animation: 'slide_from_right',
             gestureEnabled: true,
-            gestureDirection: 'vertical',
+            gestureDirection: 'horizontal',
           }} 
         />
         <Stack.Screen 
@@ -90,11 +88,10 @@ export default function RootLayout() {
           }} 
         />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-        </SavedItinerariesProvider>
-        </FavoritesProvider>
-    </GestureHandlerRootView>
+      </Stack>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+    </SavedItinerariesProvider>
+    </FavoritesProvider>
   );
 }

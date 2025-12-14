@@ -1,44 +1,17 @@
 /**
  * AR Camera Screen
  * Live camera view with AR restaurant recognition
- * Draggable camera preview with exposure controls
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  Alert, 
-  ActivityIndicator, 
-  StatusBar, 
-  Platform,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import { useRouter, Stack } from 'expo-router';
-import { X, Camera as CameraIcon, Sun } from 'lucide-react-native';
+import { X, Camera, RefreshCw } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring,
-  withTiming,
-  interpolate,
-  Extrapolate,
-  runOnJS,
-} from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import * as Haptics from 'expo-haptics';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { CameraRecognitionEngine } from '@/services/cameraRecognitionEngine';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAX_DRAG_DISTANCE = 150;
-const ELASTIC_RESISTANCE = 0.5;
-const SNAP_THRESHOLD_UP = 90;
-const SNAP_THRESHOLD_DOWN = 90;
 
 export default function ARCameraScreen(): React.JSX.Element {
   const router = useRouter();
@@ -49,24 +22,6 @@ export default function ARCameraScreen(): React.JSX.Element {
   const [facing, setFacing] = useState<CameraType>('back');
   const [isProcessing, setIsProcessing] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  
-  // Camera drag state
-  const cameraOffset = useSharedValue(0);
-  const isDragging = useSharedValue(false);
-  const dragStartY = useSharedValue(0);
-  const dragStartOffset = useSharedValue(0);
-  const wasOpen = useSharedValue(false);
-  
-  // Exposure state
-  const [currentExposure, setCurrentExposure] = useState(0);
-  const [minExposure, setMinExposure] = useState(-4);
-  const [maxExposure, setMaxExposure] = useState(4);
-  
-  // Focus indicator state
-  const [showFocusIndicator, setShowFocusIndicator] = useState(false);
-  const [focusX, setFocusX] = useState(0);
-  const [focusY, setFocusY] = useState(0);
-  const focusTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const recognitionEngine = new CameraRecognitionEngine();
 
@@ -74,23 +29,6 @@ export default function ARCameraScreen(): React.JSX.Element {
   useEffect(() => {
     requestPermissions();
   }, []);
-
-  // Hide focus indicator after 2 seconds
-  useEffect(() => {
-    if (showFocusIndicator) {
-      if (focusTimerRef.current) {
-        clearTimeout(focusTimerRef.current);
-      }
-      focusTimerRef.current = setTimeout(() => {
-        setShowFocusIndicator(false);
-      }, 2000);
-    }
-    return () => {
-      if (focusTimerRef.current) {
-        clearTimeout(focusTimerRef.current);
-      }
-    };
-  }, [showFocusIndicator]);
 
   const requestPermissions = async () => {
     // Request camera permission
@@ -121,7 +59,6 @@ export default function ARCameraScreen(): React.JSX.Element {
     }
 
     setIsProcessing(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
       // Capture photo
@@ -140,7 +77,7 @@ export default function ARCameraScreen(): React.JSX.Element {
         camera_image_base64: photo.base64,
         gps: userLocation,
         supabase_user: {
-          user_id: 'demo_user',
+          user_id: 'demo_user', // Replace with actual user ID from auth
           favorites: [],
           dietary_preferences: ['vegetarian'],
           past_visits: [],
@@ -148,7 +85,7 @@ export default function ARCameraScreen(): React.JSX.Element {
         },
       });
 
-      // Redirect to restaurant detail page
+      // Redirect to restaurant detail page with smooth transition
       if (result && result.google_match && result.google_match.name) {
         const restaurantId = result.google_match.place_id || Date.now().toString();
         router.push({
@@ -169,137 +106,14 @@ export default function ARCameraScreen(): React.JSX.Element {
     }
   };
 
-  const handleTapFocus = (event: any) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setFocusX(locationX);
-    setFocusY(locationY);
-    setShowFocusIndicator(true);
-    
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
-    // Note: expo-camera doesn't directly support focus point setting
-    // This is a visual indicator only
+
+  const toggleCameraFacing = () => {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
   };
-
-  const handleExposureChange = (value: number) => {
-    const clampedValue = Math.max(minExposure, Math.min(maxExposure, value));
-    setCurrentExposure(clampedValue);
-    // Note: expo-camera doesn't directly support exposure offset
-    // This is a UI-only control for now
-  };
-
-  const sliderWidthRef = useRef(250);
-  
-  const onSliderLayout = (event: any) => {
-    sliderWidthRef.current = event.nativeEvent.layout.width;
-  };
-  
-  const onSliderPress = (event: any) => {
-    const x = event.nativeEvent.locationX;
-    const width = sliderWidthRef.current;
-    const ratio = Math.max(0, Math.min(1, x / width));
-    const newValue = minExposure + (ratio * (maxExposure - minExposure));
-    handleExposureChange(newValue);
-  };
-
-  const exposureSliderStyle = useAnimatedStyle(() => {
-    const range = maxExposure - minExposure;
-    const position = ((currentExposure - minExposure) / range) * 100;
-    return {
-      left: `${position}%`,
-    };
-  });
-
-  const snapCamera = (targetOffset: number, shouldVibrate: boolean) => {
-    if (shouldVibrate) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    cameraOffset.value = withSpring(targetOffset, {
-      damping: 15,
-      stiffness: 150,
-      mass: 0.5,
-    });
-    wasOpen.value = targetOffset > 0;
-  };
-
-  const panGesture = Gesture.Pan()
-    .onStart((event) => {
-      dragStartY.value = event.y;
-      dragStartOffset.value = cameraOffset.value;
-      isDragging.value = true;
-    })
-    .onUpdate((event) => {
-      const drag = dragStartY.value - event.y;
-      const rawOffset = dragStartOffset.value + drag;
-      let newOffset;
-
-      if (rawOffset >= 0) {
-        if (rawOffset <= MAX_DRAG_DISTANCE) {
-          newOffset = rawOffset;
-        } else {
-          const excess = rawOffset - MAX_DRAG_DISTANCE;
-          newOffset = MAX_DRAG_DISTANCE + (excess * ELASTIC_RESISTANCE);
-        }
-      } else {
-        newOffset = rawOffset * 0.3;
-      }
-
-      cameraOffset.value = Math.max(-40, Math.min(MAX_DRAG_DISTANCE + 120, newOffset));
-    })
-    .onEnd(() => {
-      isDragging.value = false;
-      const offset = cameraOffset.value;
-
-      let willBeOpen: boolean;
-      if (wasOpen.value) {
-        willBeOpen = offset > SNAP_THRESHOLD_DOWN;
-      } else {
-        willBeOpen = offset >= SNAP_THRESHOLD_UP;
-      }
-
-      const shouldVibrate = willBeOpen !== wasOpen.value;
-      const targetOffset = willBeOpen ? MAX_DRAG_DISTANCE : 0;
-      
-      runOnJS(snapCamera)(targetOffset, shouldVibrate);
-    });
-
-  // Animated styles
-  const cameraAnimatedStyle = useAnimatedStyle(() => {
-    const borderRadius = cameraOffset.value > 0 ? 40 : 0;
-    return {
-      transform: [{ translateY: -cameraOffset.value }],
-      borderTopLeftRadius: borderRadius,
-      borderTopRightRadius: borderRadius,
-    };
-  });
-
-  const captureButtonAnimatedStyle = useAnimatedStyle(() => {
-    const baseBottom = 25;
-    const elasticOffset = cameraOffset.value * 0;
-    return {
-      bottom: baseBottom + elasticOffset,
-    };
-  });
-
-  const exposureContainerAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      cameraOffset.value,
-      [0, MAX_DRAG_DISTANCE],
-      [0, 1],
-      Extrapolate.CLAMP
-    );
-    return {
-      opacity,
-    };
-  });
 
   // Permission checks
   if (!cameraPermission) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="small" color="#fff" />
-      </View>
-    );
+    return <View style={styles.container}><Text>Loading...</Text></View>;
   }
 
   if (!cameraPermission.granted) {
@@ -321,93 +135,68 @@ export default function ARCameraScreen(): React.JSX.Element {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" hidden />
         
-        {/* Exposure Controls (behind camera) */}
-        <Animated.View style={[styles.exposureContainer, exposureContainerAnimatedStyle]}>
-          <View style={styles.exposureContent}>
-            <View style={styles.exposureSliderContainer}>
-              <Sun size={20} color="rgba(255, 255, 255, 0.7)" />
-              <TouchableOpacity 
-                activeOpacity={1}
-                onPress={onSliderPress}
-                onLayout={onSliderLayout}
-                style={styles.sliderWrapper}
-              >
-                <View style={styles.sliderTrack}>
-                  <View 
-                    style={[
-                      styles.sliderActiveTrack,
-                      { width: `${((currentExposure - minExposure) / (maxExposure - minExposure)) * 100}%` }
-                    ]} 
-                  />
-                </View>
-                <Animated.View style={[styles.sliderThumb, exposureSliderStyle]} />
-              </TouchableOpacity>
-              <Text style={styles.exposureValue}>{currentExposure.toFixed(1)}</Text>
-            </View>
-            <View style={styles.exposureScale}>
-              <Text style={styles.scaleText}>{minExposure.toFixed(0)}</Text>
-              <Text style={styles.scaleZero}>0</Text>
-              <Text style={styles.scaleText}>{maxExposure.toFixed(0)}</Text>
-            </View>
-          </View>
+        {/* Camera View */}
+      <CameraView 
+        ref={cameraRef}
+        style={styles.camera} 
+        facing={facing}
+      >
+        {/* Floating Close Button */}
+        <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} style={styles.floatingCloseButton}>
+          <BlurView intensity={60} tint="dark" style={styles.closeButtonBlur}>
+            <TouchableOpacity 
+              style={styles.closeButton} 
+              onPress={() => router.back()}
+              activeOpacity={0.7}
+            >
+              <X size={26} color="#fff" strokeWidth={2.5} />
+            </TouchableOpacity>
+          </BlurView>
         </Animated.View>
 
-        {/* Draggable Camera Preview */}
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.cameraWrapper, cameraAnimatedStyle]}>
-            <TouchableOpacity 
-              activeOpacity={1} 
-              onPress={handleTapFocus}
-              style={styles.cameraTouchable}
-            >
-              <CameraView 
-                ref={cameraRef}
-                style={styles.camera} 
-                facing={facing}
-              >
-                {/* Focus Indicator */}
-                {showFocusIndicator && (
-                  <View 
-                    style={[
-                      styles.focusIndicator,
-                      {
-                        left: focusX - 40,
-                        top: focusY - 40,
-                      },
-                    ]}
-                  />
-                )}
-
-                {/* Capture Button */}
-                <Animated.View style={[styles.captureButtonContainer, captureButtonAnimatedStyle]}>
-                  {isProcessing ? (
-                    <ActivityIndicator size="large" color="#fff" />
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.captureButton}
-                      onPress={captureAndRecognize}
-                      activeOpacity={0.8}
-                    >
-                      <View style={styles.captureButtonOuter} />
-                      <View style={styles.captureButtonInner} />
-                    </TouchableOpacity>
-                  )}
-                </Animated.View>
-              </CameraView>
-            </TouchableOpacity>
-          </Animated.View>
-        </GestureDetector>
-
-        {/* Close Button */}
-        <View style={styles.closeButtonContainer}>
-          <TouchableOpacity 
-            style={styles.closeButton} 
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-          >
-            <X size={24} color="#fff" />
-          </TouchableOpacity>
+        {/* AR Viewfinder */}
+        <View style={styles.viewfinder}>
+          <View style={styles.cornerTopLeft} />
+          <View style={styles.cornerTopRight} />
+          <View style={styles.cornerBottomLeft} />
+          <View style={styles.cornerBottomRight} />
         </View>
+
+
+        {/* Bottom Controls */}
+        <View style={styles.bottomControls}>
+          <BlurView intensity={50} tint="dark" style={styles.controlsBlur}>
+            {isProcessing ? (
+              <ActivityIndicator size="large" color="#fff" />
+            ) : (
+              <TouchableOpacity 
+                style={styles.captureButton}
+                onPress={captureAndRecognize}
+                activeOpacity={0.8}
+              >
+                <View style={styles.captureButtonInner}>
+                  <Camera size={32} color="#FF3B30" strokeWidth={2.5} />
+                </View>
+              </TouchableOpacity>
+            )}
+          </BlurView>
+        </View>
+
+        {/* Instructions */}
+        {!isProcessing && (
+          <Animated.View 
+            entering={FadeIn.delay(500).duration(400)}
+            exiting={FadeOut.duration(200)}
+            style={styles.instructionsContainer}
+          >
+            <BlurView intensity={80} tint="light" style={styles.instructionsBlur}>
+              <Text style={styles.instructionsText}>
+                👆 Point camera at restaurant sign and tap to scan
+              </Text>
+            </BlurView>
+          </Animated.View>
+        )}
+      </CameraView>
       </View>
     </>
   );
@@ -418,138 +207,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-  exposureContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    justifyContent: 'flex-end',
-    paddingBottom: 40,
-  },
-  exposureContent: {
-    paddingHorizontal: 20,
-  },
-  exposureSliderContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  sliderWrapper: {
-    flex: 1,
-    marginHorizontal: 20,
-    height: 30,
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  sliderTrack: {
-    height: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.24)',
-    borderRadius: 1.5,
-    position: 'relative',
-  },
-  sliderActiveTrack: {
-    height: 3,
-    backgroundColor: '#F59E0B',
-    borderRadius: 1.5,
-    position: 'absolute',
-    left: 0,
-    top: 0,
-  },
-  sliderThumb: {
-    position: 'absolute',
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#F59E0B',
-    marginLeft: -8,
-    marginTop: -6.5,
-    shadowColor: '#F59E0B',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  exposureValue: {
-    width: 40,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'right',
-  },
-  exposureScale: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 40,
-  },
-  scaleText: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.38)',
-  },
-  scaleZero: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  cameraWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    overflow: 'hidden',
-  },
-  cameraTouchable: {
-    flex: 1,
-  },
   camera: {
     flex: 1,
-  },
-  focusIndicator: {
-    position: 'absolute',
-    width: 80,
-    height: 80,
-    borderWidth: 2,
-    borderColor: '#FFEB3B',
-    borderRadius: 2,
-  },
-  captureButtonContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  captureButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  captureButtonOuter: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    backgroundColor: 'rgba(156, 156, 156, 0.4)',
-    position: 'absolute',
-  },
-  captureButtonInner: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#fff',
-  },
-  closeButtonContainer: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    zIndex: 1000,
-  },
-  closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   permissionContainer: {
     flex: 1,
@@ -574,4 +233,122 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  floatingCloseButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    zIndex: 100,
+  },
+  closeButtonBlur: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  closeButton: {
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewfinder: {
+    position: 'absolute',
+    top: '30%',
+    left: '10%',
+    right: '10%',
+    height: 200,
+  },
+  cornerTopLeft: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 40,
+    height: 40,
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderColor: '#FF3B30',
+  },
+  cornerTopRight: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 40,
+    height: 40,
+    borderTopWidth: 3,
+    borderRightWidth: 3,
+    borderColor: '#FF3B30',
+  },
+  cornerBottomLeft: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: 40,
+    height: 40,
+    borderBottomWidth: 3,
+    borderLeftWidth: 3,
+    borderColor: '#FF3B30',
+  },
+  cornerBottomRight: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 40,
+    height: 40,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    borderColor: '#FF3B30',
+  },
+  bottomControls: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  controlsBlur: {
+    borderRadius: 80,
+    overflow: 'hidden',
+    padding: 8,
+  },
+  captureButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  captureButtonInner: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  instructionsContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: 32,
+    right: 32,
+    marginTop: 120,
+  },
+  instructionsBlur: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  instructionsText: {
+    fontSize: 14,
+    color: '#000',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
 });
+

@@ -226,10 +226,10 @@ export default function ExplorePage() {
                                         />
                                         
                                         {/* Gradient Overlay */}
-                                        <LinearGradient
+            <LinearGradient
                                             colors={['transparent', 'rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)']}
                                             style={styles.resortGradient}
-                                        />
+            />
 
                                         {/* Rating Badge */}
                                         <View style={styles.ratingBadge}>
@@ -333,8 +333,8 @@ export default function ExplorePage() {
                                                         {formatDistance(restaurant.distance)}
                                                     </MotiText>
                                                 )}
-                                            </View>
-                                        </View>
+            </View>
+        </View>
                                     </TouchableOpacity>
                                 </MotiView>
                             ))}
