@@ -13,6 +13,8 @@ import {
   TouchableOpacity,
   StatusBar,
   Dimensions,
+  Linking,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,6 +35,33 @@ export default function RestaurantDetailPage() {
   const restaurantId = params.id as string;
 
   const isFavorite = restaurantData ? checkIsFavorite(restaurantId) : false;
+
+  const openInMaps = () => {
+    const coords = safeGoogleMatch?.location;
+    const address = safeGoogleMatch?.address || '';
+    const query = encodeURIComponent(address || safeGoogleMatch?.name || 'Restaurant');
+
+    if (coords?.lat && coords?.lng) {
+      const lat = coords.lat;
+      const lng = coords.lng;
+      const iosUrl = `http://maps.apple.com/?ll=${lat},${lng}&q=${query}`;
+      const androidUrl = `geo:${lat},${lng}?q=${query}`;
+      const url = Platform.select({
+        ios: iosUrl,
+        android: androidUrl,
+        default: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+      });
+      if (url) {
+        Linking.openURL(url);
+        return;
+      }
+    }
+
+    if (address) {
+      const fallbackUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+      Linking.openURL(fallbackUrl);
+    }
+  };
 
   const toggleFavorite = () => {
     if (!restaurantData) return;
@@ -303,7 +332,7 @@ export default function RestaurantDetailPage() {
 
         {/* Bottom Action Button */}
         <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={openInMaps}>
             <LinearGradient
               colors={['#FF3B30', '#FF6B58']}
               start={{ x: 0, y: 0 }}
