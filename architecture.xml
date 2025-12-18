@@ -1,0 +1,164 @@
+<mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- Client Layer -->
+    <mxCell id="client-layer" value="Client Layer" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="40" y="40" width="1320" height="120" as="geometry" />
+    </mxCell>
+    <mxCell id="expo-app" value="&lt;b&gt;Expo App&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;2&quot;&gt;React Native + Expo Router&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;📱 AR Camera | 💬 Chat | 🔍 Explore | 📋 Itinerary | 🏠 Home&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5ff;strokeColor=#0066cc;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;strokeWidth=2;shadow=1;" vertex="1" parent="client-layer">
+      <mxGeometry x="20" y="30" width="1280" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Service Layer -->
+    <mxCell id="service-layer" value="Service Layer" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="40" y="200" width="1320" height="500" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="camera-recognition" value="&lt;b&gt;CameraRecognitionEngine&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Orchestrates: OCR → Yelp → Personalization&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Click for details | Hover for tooltip&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="20" y="30" width="280" height="100" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="google-vision-service" value="&lt;b&gt;GoogleVisionService&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Text Extraction (OCR)&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Extracts restaurant names from images&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="320" y="30" width="220" height="100" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="yelp-service" value="&lt;b&gt;YelpService&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Business Details, Reviews, Dishes&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Fetches restaurant data from Yelp&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="560" y="30" width="220" height="100" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="yelp-itinerary-service" value="&lt;b&gt;YelpItineraryService&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Yelp Data for Itineraries&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Searches restaurants for trip planning&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="800" y="30" width="240" height="100" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="smart-itinerary" value="&lt;b&gt;SmartItineraryEngine&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Budget/Diet/Cuisine Optimization&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Creates optimized meal plans&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="20" y="150" width="280" height="100" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="supabase-itinerary" value="&lt;b&gt;SupabaseItineraryService&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Persist &amp; Retrieve Itineraries&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Saves trips to database&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="320" y="150" width="280" height="100" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="cost-estimator" value="&lt;b&gt;CostEstimatorService&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Compare Cost, Calories, Value&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Analyzes restaurant value&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="620" y="150" width="220" height="100" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="supabase-service" value="&lt;b&gt;SupabaseService&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;User Preferences &amp; Favorites&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Manages user data&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="service-layer">
+      <mxGeometry x="860" y="150" width="220" height="100" as="geometry" />
+    </mxCell>
+    
+    <!-- External APIs -->
+    <mxCell id="external-apis" value="External APIs" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="40" y="740" width="640" height="120" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="google-vision-api" value="&lt;b&gt;Google Vision API&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;OCR Text Extraction&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Processes images to extract text&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="external-apis">
+      <mxGeometry x="20" y="30" width="280" height="80" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="yelp-fusion-api" value="&lt;b&gt;Yelp Fusion API&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Business Info, Reviews, Search&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Provides restaurant data&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="external-apis">
+      <mxGeometry x="320" y="30" width="280" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Storage Layer -->
+    <mxCell id="storage-layer" value="Storage Layer" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="720" y="740" width="640" height="120" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="supabase-storage" value="&lt;b&gt;Supabase&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Itineraries, Trips, Preferences, Favorites&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Cloud database storage&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="storage-layer">
+      <mxGeometry x="20" y="30" width="280" height="80" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="async-storage" value="&lt;b&gt;AsyncStorage&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;Local Cache (Offline Support)&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot; color=&quot;#666666&quot;&gt;Device-local storage&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;strokeWidth=2;shadow=1;pointerEvents=1;" vertex="1" parent="storage-layer">
+      <mxGeometry x="320" y="30" width="280" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Flow 1: AR Recognition Flow with step numbers -->
+    <mxCell id="flow1-label" value="&lt;b&gt;Flow 1: AR Recognition&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#0066cc;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="40" y="280" width="200" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="client-to-camera" value="&lt;b&gt;Step 1&lt;/b&gt;&lt;br&gt;User scans restaurant" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066cc;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=10;labelBorderColor=#0066cc;" edge="1" parent="1" source="expo-app" target="camera-recognition">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="camera-to-vision" value="&lt;b&gt;Step 2&lt;/b&gt;&lt;br&gt;Extract text" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;dashed=1;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#82b366;" edge="1" parent="1" source="camera-recognition" target="google-vision-service">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="vision-to-api" value="&lt;b&gt;Step 3&lt;/b&gt;&lt;br&gt;OCR request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#d79b00;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#d79b00;" edge="1" parent="1" source="google-vision-service" target="google-vision-api">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="camera-to-yelp" value="&lt;b&gt;Step 4&lt;/b&gt;&lt;br&gt;Enrich with Yelp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;dashed=1;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#82b366;" edge="1" parent="1" source="camera-recognition" target="yelp-service">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="yelp-to-api" value="&lt;b&gt;Step 5&lt;/b&gt;&lt;br&gt;Fetch data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#d79b00;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#d79b00;" edge="1" parent="1" source="yelp-service" target="yelp-fusion-api">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="camera-to-supabase" value="&lt;b&gt;Step 6&lt;/b&gt;&lt;br&gt;Personalize" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;dashed=1;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#82b366;" edge="1" parent="1" source="camera-recognition" target="supabase-service">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="supabase-service-to-storage" value="&lt;b&gt;Step 7&lt;/b&gt;&lt;br&gt;Save preferences" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#9673a6;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#9673a6;" edge="1" parent="1" source="supabase-service" target="supabase-storage">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Flow 2: Itinerary Planning Flow -->
+    <mxCell id="flow2-label" value="&lt;b&gt;Flow 2: Itinerary Planning&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#0066cc;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="40" y="400" width="200" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="client-to-itinerary" value="&lt;b&gt;Step 1&lt;/b&gt;&lt;br&gt;User plans trip" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066cc;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=10;labelBorderColor=#0066cc;" edge="1" parent="1" source="expo-app" target="smart-itinerary">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="itinerary-to-yelp-itinerary" value="&lt;b&gt;Step 2&lt;/b&gt;&lt;br&gt;Fetch restaurants" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;dashed=1;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#82b366;" edge="1" parent="1" source="smart-itinerary" target="yelp-itinerary-service">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="yelp-itinerary-to-api" value="&lt;b&gt;Step 3&lt;/b&gt;&lt;br&gt;Search Yelp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#d79b00;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#d79b00;" edge="1" parent="1" source="yelp-itinerary-service" target="yelp-fusion-api">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="itinerary-to-supabase-itinerary" value="&lt;b&gt;Step 4&lt;/b&gt;&lt;br&gt;Optimize &amp; save" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;dashed=1;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#82b366;" edge="1" parent="1" source="smart-itinerary" target="supabase-itinerary">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="supabase-itinerary-to-storage" value="&lt;b&gt;Step 5&lt;/b&gt;&lt;br&gt;Persist to DB" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#9673a6;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#9673a6;" edge="1" parent="1" source="supabase-itinerary" target="supabase-storage">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Flow 3: Cost Comparison Flow -->
+    <mxCell id="flow3-label" value="&lt;b&gt;Flow 3: Cost Comparison&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#0066cc;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="40" y="520" width="200" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="client-to-cost" value="&lt;b&gt;Step 1&lt;/b&gt;&lt;br&gt;User compares" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066cc;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=10;labelBorderColor=#0066cc;" edge="1" parent="1" source="expo-app" target="cost-estimator">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="cost-to-yelp" value="&lt;b&gt;Step 2&lt;/b&gt;&lt;br&gt;Get restaurant data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;dashed=1;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#82b366;" edge="1" parent="1" source="cost-estimator" target="yelp-service">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Storage connection -->
+    <mxCell id="supabase-to-async" value="&lt;b&gt;Cache&lt;/b&gt;&lt;br&gt;Sync to local" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#9673a6;dashed=1;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;fontSize=9;labelBorderColor=#9673a6;" edge="1" parent="1" source="supabase-storage" target="async-storage">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Interactive Instructions -->
+    <mxCell id="instructions" value="&lt;b&gt;How to Use This Diagram:&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;• Click any component to see details&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;• Hover over components for tooltips&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;• Follow numbered steps to trace flows&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;• Each flow shows the complete process&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=10;fontSize=10;dashed=1;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="1080" y="280" width="280" height="120" as="geometry" />
+    </mxCell>
+    
+    <!-- Legend -->
+    <mxCell id="legend" value="&lt;b&gt;Connection Types:&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;━━━ Client Request (Blue)&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;━━━ API Call (Orange)&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;━━━ Storage (Purple)&lt;/font&gt;&lt;br&gt;&lt;font size=&quot;1&quot;&gt;━━━ Internal Service (Green, Dashed)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=10;fontSize=10;dashed=1;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="1080" y="420" width="280" height="100" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

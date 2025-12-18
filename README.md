@@ -63,19 +63,15 @@ Yint is an AI-driven food and travel companion that helps users make smarter din
 
 ## Architecture
 
-- **Client (Expo app)**: AR camera, chat, Yelp Fusion (business + reviews).
-- **Logic Services**: Recognition pipeline, itinerary optimizer, cost estimator (all in `services/`).
-- **Storage**: Supabase for trips/favorites; AsyncStorage for local caches.
+![Architecture Diagram](https://i.postimg.cc/dtt58yy3/Architecture.png)
+
+The application is built on a client-server architecture with the Expo app serving as the client layer, providing AR camera functionality, chat interface, and integration with Yelp Fusion API for business information and reviews. The core logic is handled by service modules located in the `services/` directory, which include the recognition pipeline for restaurant identification, an itinerary optimizer for generating travel plans, and a cost estimator for comparing dining options. Data persistence is managed through Supabase for storing trips and favorites, while AsyncStorage provides local caching capabilities for offline-friendly functionality.
 
 ---
 
 ## What Makes YelpAI Different
 
-- Vision-first discovery: identify restaurants just by looking at them.
-- Yelp intelligence without heavy LLM calls fast, deterministic, and cost-aware.
-- Trip planning that respects budget, dietary needs, cuisine variety, and party size.
-- Cost-comparison chat that turns free-form text into structured value analysis.
-- Delightful mobile UI with haptics, glassmorphism, and micro-animations.
+Yint distinguishes itself through vision-first discovery, allowing users to identify restaurants simply by looking at them through their camera. The platform leverages Yelp intelligence without relying on heavy LLM calls, making it fast, deterministic, and cost-aware. Its trip planning capabilities intelligently respect budget constraints, dietary needs, cuisine variety, and party size to create personalized dining experiences. The cost-comparison chat feature transforms free-form text queries into structured value analysis, helping users make informed decisions. The mobile experience is enhanced with delightful UI elements including haptics, glassmorphism design, and micro-animations that create an engaging and intuitive user interface.
 
 ---
 
@@ -127,20 +123,13 @@ Open on iOS Simulator, Android Emulator, or a development build. The app uses Ex
 
 ## Challenges & Learnings
 
-- Matching OCR text to real places with noisy storefront images.
-- Balancing budget, diet, and cuisine variety in deterministic itinerary generation.
-- Extracting popular dishes and dietary labels from sparse Yelp review text.
-- Keeping AR flows smooth while orchestrating multiple external APIs on-device.
+Building Yint presented several technical challenges that required innovative solutions. Matching OCR text to real places proved difficult when dealing with noisy storefront images, where lighting conditions, angles, and partial text visibility could lead to incorrect restaurant identification. The deterministic itinerary generation system required careful balancing of multiple constraints including budget limitations, dietary preferences, and cuisine variety to create optimal meal plans without relying on expensive AI calls. Extracting meaningful insights like popular dishes and dietary labels from sparse Yelp review text demanded sophisticated text parsing and pattern recognition techniques. Perhaps most critically, maintaining smooth AR flows while orchestrating multiple external APIs on-device required careful optimization of network requests, caching strategies, and error handling to ensure a responsive user experience even under varying network conditions.
 
 ---
 
 ## Roadmap
 
-- Live reservations and wait-time signals.
-- Offline-friendly caching for frequent neighborhoods.
-- Push notifications for itinerary reminders and table holds.
-- Better dish-level nutrition estimates and allergen flags.
-- Deeper personalization via Supabase user profiles.
+The future development of Yint will focus on enhancing real-time functionality and user experience. Planned features include integration with live reservation systems and wait-time signals to help users make more informed dining decisions. Offline-friendly caching for frequent neighborhoods will improve performance in areas with poor connectivity, ensuring the app remains functional even without constant internet access. Push notifications will be implemented for itinerary reminders and table hold confirmations, keeping users informed about their planned dining experiences. The platform will also expand its health and dietary features with better dish-level nutrition estimates and comprehensive allergen flags, helping users make choices aligned with their health goals. Finally, deeper personalization through Supabase user profiles will enable more tailored recommendations based on dining history, preferences, and behavior patterns.
 
 ---
 
